@@ -83,7 +83,7 @@ const request = async <Response>(
       ? envConfig.NEXT_PUBLIC_API_ENDPOINT
       : options.baseUrl
 
- const fullUrl = `$${baseUrl}/${normalizePath(url)}`
+ const fullUrl = `${baseUrl}/${normalizePath(url)}`
   const res = await fetch(fullUrl, {
     ...options,
     headers: {
@@ -143,6 +143,7 @@ const request = async <Response>(
   }
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient) {
+    console.log(isClient)
     const normalizeUrl = normalizePath(url)
     if (
     normalizeUrl === 'api/auth/login'

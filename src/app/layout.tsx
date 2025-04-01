@@ -1,29 +1,35 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Inter as FontSans } from 'next/font/google'
+import './globals.css'
+import { cn } from '@/lib/utils'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from "@/components/ui/sonner"
+import AppProvider from '@/components/app-provider'
 
-const inter = Inter({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+const fontSans = FontSans({
+  subsets: ['latin'],
+  variable: '--font-sans'
+})
 export const metadata: Metadata = {
-  title: {
-    template: "%s | Vinh dep trai",
-    default: "Vinh dep trai",
-  },
-  description: "Được tạo bởi Vinh Le",
-  // openGraph: baseOpenGraph
-};
+  title: 'Big Boy Restaurant',
+  description: 'The best restaurant in the world'
+}
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={` ${inter.variable} antialiased`}>{children}</body>
+    <html lang='en' suppressHydrationWarning>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+        <AppProvider>
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+          {children}
+          <Toaster />
+        </ThemeProvider>
+        </AppProvider>
+      </body>
     </html>
-  );
+  )
 }
