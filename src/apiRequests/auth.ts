@@ -1,5 +1,5 @@
 import http from "@/lib/http";
-import { LoginBodyType, LoginResType, LogoutBodyType} from "@/schemaValidations/auth.schema";
+import { LoginBodyType, LoginResType, LogoutBodyType, RefreshTokenBodyType, RefreshTokenResType} from "@/schemaValidations/auth.schema";
 
 const authApiRequest = {
     sLogin:(body:LoginBodyType)=> http.post<LoginResType>('/auth/login',body),
@@ -8,7 +8,9 @@ const authApiRequest = {
         {headers:{
         Authorization: `Bearer ${body.accessToken}`
     }}),
-    logout:() => http.post('/api/auth/logout',null, {baseUrl:''})// client goi den route handler, k can truyen at&rt vi tu dong gui den thong qua cookie r
+    logout:() => http.post('/api/auth/logout',null, {baseUrl:''}),// client goi den route handler, k can truyen at&rt vi tu dong gui den thong qua cookie r
+    sRefreshToken:(body: RefreshTokenBodyType) => http.post<RefreshTokenResType>('auth/refresh-token',body),
+    refreshToken:() => http.post<RefreshTokenResType>('/api/auth/refresh-token',null,{baseUrl:''})
 }
 
 export default authApiRequest

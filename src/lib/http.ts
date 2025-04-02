@@ -132,10 +132,12 @@ const request = async <Response>(
           }
         }
       } else {
-        const sessionToken = (options?.headers as any)?.Authorization.split(
+        //day la truong hop khi ma chung ta van con accessToken con han 
+        //va chung ta goi api o server(route handler, server component) den server backend
+        const accessToken = (options?.headers as any)?.Authorization.split(
           'Bearer '
         )[1]
-        redirect(`/logout?sessionToken=${sessionToken}`)
+        redirect(`/logout?accessToken=${accessToken}`)
       }
     } else {
       throw new HttpError(data)
