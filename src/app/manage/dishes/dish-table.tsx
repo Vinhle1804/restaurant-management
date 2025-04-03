@@ -37,13 +37,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { formatCurrency, getVietnameseDishStatus } from '@/lib/utils'
+import { formatCurrency, getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
 // import AutoPagination from '@/components/auto-pagination'
 import { DishListResType } from '@/schemaValidations/dish.schema'
 import EditDish from '@/app/manage/dishes/edit-dish'
 import AddDish from '@/app/manage/dishes/add-dish'
 import AutoPagination from '@/components/auto-pagination'
+import { useDeleteDishMutation, useDishListQuery } from '@/queries/useDish'
+import DOMPurify from 'dompurify';
+import { toast } from 'sonner'
 
 type DishItem = DishListResType['data'][0]
 
@@ -53,9 +56,11 @@ const DishTableContext = createContext<{
   dishDelete: DishItem | null
   setDishDelete: (value: DishItem | null) => void
 }>({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDishIdEdit: (value: number | undefined) => {},
   dishIdEdit: undefined,
   dishDelete: null,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setDishDelete: (value: DishItem | null) => {}
 })
 
@@ -90,7 +95,7 @@ export const columns: ColumnDef<DishItem>[] = [
     accessorKey: 'description',
     header: 'Mô tả',
     cell: ({ row }) => (
-      <div dangerouslySetInnerHTML={{ __html: row.getValue('description') }} className='whitespace-pre-line' />
+      <div dangerouslySetInnerHTML={{ __html:DOMPurify.sanitize(row.getValue('description') )}} className='whitespace-pre-line' />
     )
   },
   {
@@ -137,6 +142,23 @@ function AlertDialogDeleteDish({
   dishDelete: DishItem | null
   setDishDelete: (value: DishItem | null) => void
 }) {
+    const {mutateAsync} = useDeleteDishMutation()
+        const deleteDish = async () =>{
+          if(dishDelete){
+            try {
+              const result = await mutateAsync(dishDelete.id)
+              setDishDelete(null)
+              toast('Delete success',{
+                description: result.payload.message
+              })
+            } catch (error) {
+              handleErrorApi({
+                error,
+                setError: () => {} // Provide a valid setError function or replace with the appropriate implementation
+              })
+            }
+          }
+        }
   return (
     <AlertDialog
       open={Boolean(dishDelete)}
@@ -156,7 +178,7 @@ function AlertDialogDeleteDish({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deleteDish}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -170,8 +192,8 @@ export default function DishTable() {
   const pageIndex = page - 1
   const [dishIdEdit, setDishIdEdit] = useState<number | undefined>()
   const [dishDelete, setDishDelete] = useState<DishItem | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any[] = []
+  const dishListQuery = useDishListQuery()
+  const data = dishListQuery.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
