@@ -14,6 +14,7 @@ import {useLogoutMutation } from '@/queries/useAuth'
 import { handleErrorApi } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { useAccountMe } from '@/queries/useAccount'
+import { useAppContext } from '@/components/app-provider'
 
 // const account = {
 //   name: 'Lee Phuc Vinh',
@@ -24,11 +25,13 @@ export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation()
   const router = useRouter()
   const {data} = useAccountMe()
+  const {setIsAuth} = useAppContext()
   const account = data?.payload.data
   const logout = async () => {
     if (logoutMutation.isPending) return
     try {
       await logoutMutation.mutateAsync() // Đã thêm dấu ngoặc để gọi hàm
+      setIsAuth(false)
       router.push('/')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

@@ -12,7 +12,9 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
   //chua dang nhap thi k cho vao privatePath
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const url = new URL('/login', request.url)
+    url.searchParams.set('clearTokens','true')
+    return NextResponse.redirect(url);
   }
   //dang nhap r thi k cho vao login nua
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {

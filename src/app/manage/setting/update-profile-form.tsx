@@ -25,7 +25,7 @@ export default function UpdateProfileForm() {
     resolver: zodResolver(UpdateMeBody),
     defaultValues: {
       name: '',
-      avatar: ''
+      avatar: undefined
     }
   })
 const avatar = form.watch('avatar')  
@@ -35,7 +35,7 @@ useEffect(()=>{
     const {name,avatar}=data.payload.data
     form.reset({
       name,
-      avatar: avatar ?? ''
+      avatar: avatar ?? undefined
     })
   }
 },[form, data])

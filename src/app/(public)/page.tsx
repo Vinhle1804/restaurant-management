@@ -26,9 +26,10 @@ export default function Home() {
             .map((_, index) => (
               <div className='flex gap-4 w' key={index}>
                 <div className='flex-shrink-0'>
-                  <img
+                  <Image
                     src='https://ik.imagekit.io/freeflo/production/6b91c700-92c4-4601-8e96-37d84ac3c28c.png?tr=w-2048,q-75&alt=media&pr-true'
                     className='object-cover w-[150px] h-[150px] rounded-md'
+                    alt="Mô tả hình ảnh" 
                   />
                 </div>
                 <div className='space-y-1'>
