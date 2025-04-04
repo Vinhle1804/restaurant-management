@@ -33,6 +33,7 @@ export async function POST(request: Request) {
             status: error.status
         })
     } else{
+      console.log(error)
         return Response.json({
             message:'co loi xay ra'
         },{
