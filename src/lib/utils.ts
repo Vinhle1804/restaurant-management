@@ -1,3 +1,4 @@
+export const runtime = "nodejs"
 import { clsx, type ClassValue } from "clsx";
 import { UseFormSetError } from "react-hook-form";
 import { twMerge } from "tailwind-merge";

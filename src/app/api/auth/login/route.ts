@@ -1,3 +1,4 @@
+export const runtime = "nodejs"
 import authApiRequest from "@/apiRequests/auth";
 import { LoginBodyType } from "@/schemaValidations/auth.schema";
 import { cookies } from "next/headers";

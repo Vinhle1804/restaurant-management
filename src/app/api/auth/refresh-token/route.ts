@@ -1,3 +1,4 @@
+export const runtime = "nodejs"
 import authApiRequest from "@/apiRequests/auth";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
