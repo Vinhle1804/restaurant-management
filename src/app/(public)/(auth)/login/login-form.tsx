@@ -43,7 +43,6 @@ try {
   })
   setIsAuth(true)
   router.push('/manage/dashboard')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (error: any) {
   handleErrorApi({
     error,

@@ -213,8 +213,6 @@ export default function AccountTable() {
   );
   const accountListQuery = useGetAccountList();
   const data = accountListQuery.data?.payload.data ?? [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const data: any[] = []
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
