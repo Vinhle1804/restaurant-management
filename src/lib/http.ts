@@ -84,6 +84,8 @@ const request = async <Response>(
       : options.baseUrl
 
  const fullUrl = `${baseUrl}/${normalizePath(url)}`
+ console.log("full ulr", fullUrl)
+ 
 
   const res = await fetch(fullUrl, {
     ...options,
@@ -128,7 +130,7 @@ const request = async <Response>(
             // redrirect ve trang login co the dan den loop vo han neu k xu ly dung cach vi neu roi vao truong hop
             //tai trang login chung ta co goi cac api can accesstoken
             //ma acceess token da bi xoa thi no lai nhay vao day, va the la no bi vong lap 
-            location.href = '/login'
+            // location.href = '/login'
           }
         }
       } else {
@@ -147,6 +149,7 @@ const request = async <Response>(
   if (isClient) {
     console.log(isClient)
     const normalizeUrl = normalizePath(url)
+    console.log("log raaaaaaaaaaaaaaaaaaaaaa",normalizeUrl)
     if (
       ['api/auth/login', 'api/guest/auth/login'].includes(normalizeUrl)
 

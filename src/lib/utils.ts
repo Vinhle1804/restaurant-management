@@ -5,9 +5,10 @@ import { EntityError } from "./http";
 import { toast } from "sonner";
 import jwt from "jsonwebtoken";
 import authApiRequest from "@/apiRequests/auth";
-import { DishStatus, OrderStatus, TableStatus } from "@/constants/type";
+import { DishStatus, OrderStatus, Role, TableStatus } from "@/constants/type";
 import envConfig from "@/config";
 import { TokenPayload } from "@/types/jwt.types";
+import guestApiRequest from "@/apiRequests/guest";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -107,7 +108,9 @@ export const checkAndRefreshToken = async (param?: {
     (decodeAccessToken.exp - decodeAccessToken.iat) / 3
   ) {
     try {
-      const res = await authApiRequest.refreshToken();
+
+      const role = decodeToken(refreshToken).role
+      const res = role === Role.Guest ? await guestApiRequest.refreshToken() : await authApiRequest.refreshToken();
       setAccessTokenToLocalStorage(res.payload.data.accessToken);
       setRefreshToLocalStorage(res.payload.data.refreshToken);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
