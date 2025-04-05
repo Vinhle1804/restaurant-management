@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import authApiRequest from "@/apiRequests/auth";
 import { DishStatus, OrderStatus, TableStatus } from "@/constants/type";
 import envConfig from "@/config";
+import { TokenPayload } from "@/types/jwt.types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,11 +59,19 @@ export const setAccessTokenToLocalStorage = (value: string) =>
 export const setRefreshToLocalStorage = (value: string) =>
   isBrowser && localStorage.setItem("refreshToken", value);
 
-export const remmoveTokenFromLocalStorage = () => {
+export const removeTokenFromLocalStorage = () => {
   if (isBrowser) {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
   }
+};
+
+export const decodeToken = (token: string) => {
+  const decoded = jwt.decode(token);
+  if (!decoded) {
+    throw new Error('Token không hợp lệ hoặc không thể giải mã');
+  }
+  return decoded as TokenPayload;
 };
 
 export const checkAndRefreshToken = async (param?: {
@@ -78,20 +87,14 @@ export const checkAndRefreshToken = async (param?: {
   if (!accessToken || !refreshToken) {
     return;
   }
-  const decodeAccessToken = jwt.decode(accessToken) as {
-    exp: number;
-    iat: number;
-  };
-  const decodeRefreshToken = jwt.decode(refreshToken) as {
-    exp: number;
-    iat: number;
-  };
+  const decodeAccessToken = decodeToken(accessToken) 
+  const decodeRefreshToken = decodeToken(refreshToken) 
   //thoi diem het han cua token dc tinh theo epoch time (s)
   //con khi dung cu phap new Date().getTime() thi no se tra ve epoch time (ms)
   const now = (new Date().getTime() / 1000)-1
   //truong hop refresh token het han thi cho logout
   if (decodeRefreshToken.exp <= now) {
-    remmoveTokenFromLocalStorage();
+    removeTokenFromLocalStorage();
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     param?.onError && param.onError();
    return;
@@ -163,3 +166,5 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
   return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
 }
+
+

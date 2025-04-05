@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import envConfig from '@/config'
-import { normalizePath } from '@/lib/utils'
+import { getAccessTokenFromLocalStorage, normalizePath, removeTokenFromLocalStorage, setAccessTokenToLocalStorage, setRefreshToLocalStorage } from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
 import { redirect } from 'next/navigation'
 
@@ -70,7 +70,7 @@ const request = async <Response>(
           'Content-Type': 'application/json'
         }
   if (isClient) {
-    const accessToken = localStorage.getItem('accessToken')
+    const accessToken = getAccessTokenFromLocalStorage()
     if (accessToken) {
       baseHeaders.Authorization = `Bearer ${accessToken}`
     }
@@ -123,8 +123,7 @@ const request = async <Response>(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
           } finally {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
+              removeTokenFromLocalStorage()
             clientLogoutRequest = null
             // redrirect ve trang login co the dan den loop vo han neu k xu ly dung cach vi neu roi vao truong hop
             //tai trang login chung ta co goi cac api can accesstoken
@@ -149,14 +148,14 @@ const request = async <Response>(
     console.log(isClient)
     const normalizeUrl = normalizePath(url)
     if (
-    normalizeUrl === 'api/auth/login'
+      ['api/auth/login', 'api/guest/auth/login'].includes(normalizeUrl)
+
     ) {
       const { accessToken, refreshToken } = (payload as LoginResType).data
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
-    } else if ('auth/logout' === normalizePath(url)) {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+       setAccessTokenToLocalStorage(accessToken)
+       setRefreshToLocalStorage(refreshToken)
+      } else if (['auth/logout','api/guest/auth/logout'].includes(normalizeUrl)) {
+      removeTokenFromLocalStorage()
     }
   }
   return data

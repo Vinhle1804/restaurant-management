@@ -14,7 +14,7 @@ function Logout(){
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("refreshToken");
   const accessTokenFromUrl = searchParams.get("accessToken");
-  const {setIsAuth} = useAppContext()
+  const {setRole} = useAppContext()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = useRef<any>(null);
   useEffect(() => {
@@ -31,13 +31,13 @@ function Logout(){
         setTimeout(() => {
           ref.current = null;
         }, 1000);
-        setIsAuth(false)
+        setRole()
         router.push("/login");
       });
     } else {
       router.push("/");
     }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth]);
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole]);
   return <div>Logout........</div>;
 }
 
