@@ -15,12 +15,17 @@ const menuItems: {
   hideWhenLogin?: boolean;
 }[] = [
   {
-    title: "Trang chu",
+    title: "Home ",
     href: "/", //authRequired = undefined nghia la dang nhap hay chua deu cho hien thi
   },
   {
     title: "Menu",
     href: "/guest/menu", //authRequired = undefined nghia la dang nhap hay chua deu cho hien thi
+    role: [Role.Guest],
+  },
+  {
+    title: "Orders",
+    href: "/guest/orders", //authRequired = undefined nghia la dang nhap hay chua deu cho hien thi
     role: [Role.Guest],
   },
   {

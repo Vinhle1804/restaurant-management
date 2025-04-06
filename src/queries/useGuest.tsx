@@ -17,7 +17,7 @@ export const useGuestOrderMutation = () =>{
         mutationFn: guestApiRequest.order
     })
 }
-export const useGuestGetOrderListMutation = () =>{
+export const useGuestGetOrderListQuery = () =>{
 return useQuery({
     queryFn: guestApiRequest.getOrderList,
     queryKey: ['guest-orders'],
