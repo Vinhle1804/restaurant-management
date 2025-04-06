@@ -8,6 +8,19 @@ import { RoleType } from "@/types/jwt.types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+ 
+
 const menuItems: {
   title: string;
   href: string;
@@ -74,7 +87,26 @@ return(
   }
   return null
 })}
-  {role && <div className={cn(className,'cusor-pointer')} onClick={logout}>Logout</div>}
+  {role &&    <AlertDialog>
+  <AlertDialogTrigger asChild >
+  <div className={cn(className,'cusor-pointer')}>Logout</div>
+
+  </AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you sure logout?</AlertDialogTitle>
+      <AlertDialogDescription>
+   dang xuat xong bi mat hoa don do
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction  onClick={logout} >Ok</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog> }
+
+
   </>
 )
 }
