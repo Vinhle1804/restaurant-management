@@ -8,16 +8,44 @@ import { useEffect, useMemo } from "react"
 import socket from "@/lib/socket"
 import { UpdateOrderResType } from "@/schemaValidations/order.schema"
 import { toast } from "sonner"
+import { OrderStatus } from "@/constants/type"
 
 
 export default function OrdersCart() {
     const {data,refetch} = useGuestGetOrderListQuery()
     const orders = useMemo(()=> data?.payload.data ?? [],[data])
-      const totalPrice = useMemo(()=>{
+      const {waitingForPaying, paid} = useMemo(()=>{
         return orders.reduce((result, order)=>{
-          return result+ order.dishSnapshot.price * order.quantity
-        },0)
-      },[orders]) 
+          if(order.status === OrderStatus.Delivered || order.status === OrderStatus.Processing){
+            return {
+              ...result,
+              waitingForPaying: {
+                price: result.waitingForPaying.price + order.dishSnapshot.price * order.quantity,
+                quantity: result.waitingForPaying.quantity + order.quantity
+              }
+            }
+          }
+          if(order.status === OrderStatus.Paid){
+            return {
+              ...result,
+              paid: {
+                price: result.paid.price + order.dishSnapshot.price * order.quantity,
+                quantity: result.paid.quantity + order.quantity
+              }
+            }
+          }
+          return result;
+        },{
+          waitingForPaying: {
+            price: 0,
+            quantity: 0
+          },
+          paid: {
+            price: 0,
+            quantity: 0
+          }
+        })
+      },[orders])
 
       useEffect(() => {
   if(socket.connected){
@@ -84,12 +112,21 @@ export default function OrdersCart() {
                   </div>
                 </div>
     ))}
-     <div className="sticky bottom-0">
-        <div className="w-full flex space-x-4 text xl font-semibold">
-        <span>Tong cong · {orders.length} món</span>
-        <span>{formatCurrency(totalPrice)} </span>
-        </div>
-      </div>
+    <div className="sticky bottom-0 ">
+  {waitingForPaying.quantity > 0 && (
+    <div className="w-full flex space-x-4 text xl font-semibold">
+      <span>Đơn chưa thanh toán · {waitingForPaying.quantity} món</span>
+      <span>{formatCurrency(waitingForPaying.price)}</span>
+    </div>
+  )}
+  {paid.quantity > 0 && (
+    <div className="w-full flex space-x-4 text xl font-semibold">
+      <span>Đơn đã thanh toán · {paid.quantity} món</span>
+      <span>{formatCurrency(paid.price)}</span>
+    </div>
+  )}
+</div>
+
     </>
   )
 }

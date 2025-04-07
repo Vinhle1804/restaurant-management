@@ -8,7 +8,8 @@ export const TokenType = {
 export const Role = {
   Owner: 'Owner',
   Employee: 'Employee',
-  Guest: 'Guest'
+  Guest: 'Guest',
+  GuestOnline:'GuestOnline'
 } as const
 
 export const RoleValues = [Role.Owner, Role.Employee, Role.Guest] as const

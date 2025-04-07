@@ -17,7 +17,6 @@ export default function GuestLoginForm() {
   const { setRole } = useAppContext()
   const searchParams = useSearchParams()
   const params = useParams()
-  console.log(params,searchParams.get('token'))
   const tableNumber = Number(params.number)
   const token = searchParams.get('token')
   const router = useRouter()

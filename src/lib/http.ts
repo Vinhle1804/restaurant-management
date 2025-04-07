@@ -84,7 +84,6 @@ const request = async <Response>(
       : options.baseUrl
 
  const fullUrl = `${baseUrl}/${normalizePath(url)}`
- console.log("full ulr", fullUrl)
  
 
   const res = await fetch(fullUrl, {
@@ -149,7 +148,6 @@ const request = async <Response>(
   if (isClient) {
     console.log(isClient)
     const normalizeUrl = normalizePath(url)
-    console.log("log raaaaaaaaaaaaaaaaaaaaaa",normalizeUrl)
     if (
       ['api/auth/login', 'api/guest/auth/login'].includes(normalizeUrl)
 
@@ -157,6 +155,7 @@ const request = async <Response>(
       const { accessToken, refreshToken } = (payload as LoginResType).data
        setAccessTokenToLocalStorage(accessToken)
        setRefreshToLocalStorage(refreshToken)
+       
       } else if (['auth/logout','api/guest/auth/logout'].includes(normalizeUrl)) {
       removeTokenFromLocalStorage()
     }

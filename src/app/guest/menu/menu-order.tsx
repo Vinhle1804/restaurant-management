@@ -50,7 +50,8 @@ try {
 } catch (error) {
     handleErrorApi({ error,  setError: () => {} }); // xử lý lỗi bằng function riêng
   }
-}
+} 
+console.log(orders)
   return (
     <>
       {dishes.filter(dish => dish.status !== DishStatus.Hidden).map((dish) => (

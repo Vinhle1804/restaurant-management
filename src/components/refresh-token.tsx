@@ -25,7 +25,7 @@ checkAndRefreshToken({
 })
 //time interval phai < hon thoi gian het han accesstoken
 //vidu accesstoken 10s het han thi 1s check 1 lan
-const TIME_OUT= 1000
+const TIME_OUT= 2000
 interval = setInterval(()=>checkAndRefreshToken({
     onError:()=>{
     clearInterval(interval)

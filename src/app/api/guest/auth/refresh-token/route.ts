@@ -2,12 +2,13 @@ export const runtime = "nodejs"
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { HttpError } from "@/lib/http";
-import guestApiRequest from "@/apiRequests/auth";
+import guestApiRequest from "@/apiRequests/guest";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get('refreshToken')?.value
+
   if(!refreshToken){
     return Response.json({
         message: 'K tim thay refreshToken'
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
   } catch (error : any) {
     if(error instanceof HttpError){
         return Response.json(error.payload,{
-            status: error.status
+            status: 408
         })
     } else{
         return Response.json({
