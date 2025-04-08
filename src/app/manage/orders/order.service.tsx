@@ -56,6 +56,7 @@ export const useOrderService = (orderList: GetOrdersResType['data']) => {
       for (const guestId in guestObject) {
         const guestOrders = guestObject[guestId]
         const isServingGuest = guestOrders.some((order) =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           [OrderStatus.Pending, OrderStatus.Processing, OrderStatus.Delivered].includes(order.status as any)
         )
         if (isServingGuest) {

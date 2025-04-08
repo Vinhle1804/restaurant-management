@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useMemo } from "react"
 import socket from "@/lib/socket"
-import { UpdateOrderResType } from "@/schemaValidations/order.schema"
+import { PayGuestOrdersResType, UpdateOrderResType } from "@/schemaValidations/order.schema"
 import { toast } from "sonner"
 import { OrderStatus } from "@/constants/type"
 
@@ -69,17 +69,30 @@ export default function OrdersCart() {
             })
             refetch()
         }
+           function onPayment(data:PayGuestOrdersResType['data']){
+             const {guest} = data[0]
+             toast('thanh toan thanh cong',{
+              description: `Mon ${guest?.name} tai ban ${guest?.tableNumber} da thanh toan thanh cong ${data.length} don`,
+        
+             })
+          refetch()
+             
+            }
     
    
     
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
         socket.on('update-order', onUpdateOrder);
+        socket.on("payment", onPayment)
+
     
         return () => {
           socket.off('connect', onConnect);
           socket.off('disconnect', onDisconnect);
-            socket.off('update-order', onUpdateOrder);
+          socket.off('update-order', onUpdateOrder);
+          socket.off("payment", onPayment)
+   
         };
       }, [refetch]);
   return (

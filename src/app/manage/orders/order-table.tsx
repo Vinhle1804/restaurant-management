@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import {
   GetOrdersResType,
+  PayGuestOrdersResType,
   UpdateOrderResType,
 } from "@/schemaValidations/order.schema";
 import AddOrder from "@/app/manage/orders/add-order";
@@ -203,16 +204,27 @@ const updateOrderMutation = useUpdateOrderMutation()
       refetchOrderList()
     }
 
+    function onPayment(data:PayGuestOrdersResType['data']){
+     const {guest} = data[0]
+     toast('thanh toan thanh cong',{
+      description: `Mon ${guest?.name} tai ban ${guest?.tableNumber} da thanh toan thanh cong ${data.length} don`,
+     })
+     refetchOrderList()
+
+    }
+
     socket.on("new-order", onNewOrder);
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update-order", onUpdateOrder);
-
+    socket.on("payment", onPayment)
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("update-order", onUpdateOrder);
-      socket.on("new-order", onNewOrder);
+      socket.off("new-order", onNewOrder);
+      socket.off("payment", onPayment)
+
     };
   }, [fromDate, refetchOrderList, toDate]);
 
