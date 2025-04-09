@@ -5,6 +5,7 @@ import { Role } from "./constants/type";
 
 const managePaths = ["/manage"];
 const guestPaths = ["/guest"];
+const onlyOwnerPaths = ["/manage/accounts"]
 const privatePaths = [...managePaths, ...guestPaths];
 const unAuthPaths = ["/login"];
 
@@ -43,8 +44,9 @@ const role = decodeToken(refreshToken).role
 const isGuestGoToManagePath = role === Role.Guest && managePaths.some((path)=> pathname.startsWith(path))
 //k phai guest nhung co tinh vao guest path
 const isNotGuestGoToGuestPath = role !== Role.Guest && guestPaths.some((path)=> pathname.startsWith(path))
-if(isGuestGoToManagePath||
-(role !== Role.Guest &&  isNotGuestGoToGuestPath)) {
+//khong phai owner nhung co tinh truy cap vao cac route owner
+const isNotOwnerGoToOwnerPath = role !== Role.Owner && onlyOwnerPaths.some((path) => pathname.startsWith(path))
+if(isGuestGoToManagePath|| isNotGuestGoToGuestPath || isNotOwnerGoToOwnerPath) {
   return NextResponse.redirect(new URL("/", request.url));
 
 }

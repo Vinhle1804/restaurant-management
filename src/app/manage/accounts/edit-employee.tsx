@@ -115,7 +115,11 @@ export default function EditEmployee({
           avatar: imageUrl,
         };
       }
+      console.log("Submitting with values:", values);
+
       const result = await updateAccountMutation.mutateAsync(body);
+    console.log("result:", result);
+
       toast("Thanh cong", {
         description: result.payload.message,
       });
@@ -129,6 +133,7 @@ export default function EditEmployee({
       });
     }
   };
+
 
   const reset = () => {
     setId(undefined);
@@ -237,11 +242,11 @@ export default function EditEmployee({
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="role">Trạng thái</Label>
+                      <Label htmlFor="role">Vai tro</Label>
                       <div className="col-span-3 w-full space-y-2">
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>

@@ -1,14 +1,16 @@
 'use client'
 import menuItems from '@/app/manage/menuItems'
+import { useAppContext } from '@/components/app-provider'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { cn} from '@/lib/utils'
 import { Package2, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export default function NavLinks() {
   const pathname = usePathname()
-
+  const {role} = useAppContext()
+  
   return (
     <TooltipProvider>
       <aside className='fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex'>
@@ -23,6 +25,10 @@ export default function NavLinks() {
 
           {menuItems.map((Item, index) => {
             const isActive = pathname === Item.href
+            console.log(Item.role)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if(!Item.role?.includes(role as any)) return null
+
             return (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>

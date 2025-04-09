@@ -5,13 +5,14 @@ import { useGuestGetOrderListQuery } from "@/queries/useGuest"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { useEffect, useMemo } from "react"
-import socket from "@/lib/socket"
 import { PayGuestOrdersResType, UpdateOrderResType } from "@/schemaValidations/order.schema"
 import { toast } from "sonner"
 import { OrderStatus } from "@/constants/type"
+import { useAppContext } from "@/components/app-provider"
 
 
 export default function OrdersCart() {
+  const {socket} = useAppContext()
     const {data,refetch} = useGuestGetOrderListQuery()
     const orders = useMemo(()=> data?.payload.data ?? [],[data])
       const {waitingForPaying, paid} = useMemo(()=>{
@@ -48,12 +49,12 @@ export default function OrdersCart() {
       },[orders])
 
       useEffect(() => {
-  if(socket.connected){
+  if(socket?.connected){
     onConnect()
   }
 
         function onConnect() {
-            console.log(socket.id)
+            console.log(socket?.id)
         }
     
         function onDisconnect() {
@@ -81,20 +82,20 @@ export default function OrdersCart() {
     
    
     
-        socket.on('connect', onConnect);
-        socket.on('disconnect', onDisconnect);
-        socket.on('update-order', onUpdateOrder);
-        socket.on("payment", onPayment)
+        socket?.on('connect', onConnect);
+        socket?.on('disconnect', onDisconnect);
+        socket?.on('update-order', onUpdateOrder);
+        socket?.on("payment", onPayment)
 
     
         return () => {
-          socket.off('connect', onConnect);
-          socket.off('disconnect', onDisconnect);
-          socket.off('update-order', onUpdateOrder);
-          socket.off("payment", onPayment)
+          socket?.off('connect', onConnect);
+          socket?.off('disconnect', onDisconnect);
+          socket?.off('update-order', onUpdateOrder);
+          socket?.off("payment", onPayment)
    
         };
-      }, [refetch]);
+      }, [refetch, socket]);
   return (
     <>
     {orders.map((order, index) =>(

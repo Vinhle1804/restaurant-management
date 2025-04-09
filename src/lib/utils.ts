@@ -12,6 +12,7 @@ import { TokenPayload } from "@/types/jwt.types";
 import guestApiRequest from "@/apiRequests/guest";
 import { BookX, CookingPot, HandCoins, Loader, Truck } from "lucide-react";
 import { format } from "date-fns";
+import { io } from "socket.io-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -81,6 +82,7 @@ export const decodeToken = (token: string) => {
 export const checkAndRefreshToken = async (param?: {
   onError?: () => void;
   onSuccess?: () => void;
+  force?: boolean
 }) => {
   //kh nen dua lo gic lay 2 token ra khoi function nay(checkandrefreshToken)
   //vi de moi lan ma checkAndRefreshToken() dc goi thi chung ta se co 1 access va 1 refresh moi
@@ -106,10 +108,10 @@ export const checkAndRefreshToken = async (param?: {
   //vi du access token cua chung ta co thoi gian het han la 10s
   //thi minh se kiem tra con 1/3 thoi gian (3s) thi se cho refresh token
   //thoi gian con lai dc tinh theo cong thuc: decodedAccessToken.exp-decodedAccessToken.iat
-  if (
+  if(param?.force || (
     decodeAccessToken.exp - now <
     (decodeAccessToken.exp - decodeAccessToken.iat) / 3
-  ) {
+  ) ) {
     try {
 
       const role = decodeToken(refreshToken).role
@@ -193,6 +195,14 @@ export const formatDateTimeToTimeString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss')
 }
 
+export const generateSocketInstance = (accessToken: string) =>{
+  return io(envConfig.NEXT_PUBLIC_API_ENDPOINT,{
+    auth:{
+        Authorization: `Bearer ${accessToken}`
+    }
+})
+}
+
 export const OrderStatusIcon = {
   [OrderStatus.Pending]: Loader,
   [OrderStatus.Processing]: CookingPot,
@@ -200,5 +210,6 @@ export const OrderStatusIcon = {
   [OrderStatus.Delivered]: Truck,
   [OrderStatus.Paid]: HandCoins
 }
+
 
 

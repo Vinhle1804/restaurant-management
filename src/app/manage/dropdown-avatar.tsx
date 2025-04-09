@@ -16,22 +16,20 @@ import { useRouter } from 'next/navigation'
 import { useAccountMe } from '@/queries/useAccount'
 import { useAppContext } from '@/components/app-provider'
 
-// const account = {
-//   name: 'Lee Phuc Vinh',
-//   avatar: 'https://i.pravatar.cc/150'
-// }
+
 
 export default function DropdownAvatar() {
   const logoutMutation = useLogoutMutation()
   const router = useRouter()
   const {data} = useAccountMe()
-  const {setRole} = useAppContext()
+  const {setRole, disconnectSocket} = useAppContext()
   const account = data?.payload.data
   const logout = async () => {
     if (logoutMutation.isPending) return
     try {
       await logoutMutation.mutateAsync() // Đã thêm dấu ngoặc để gọi hàm
       setRole()
+      disconnectSocket()
       router.push('/')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

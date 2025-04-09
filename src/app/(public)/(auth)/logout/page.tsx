@@ -14,7 +14,7 @@ function Logout(){
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("refreshToken");
   const accessTokenFromUrl = searchParams.get("accessToken");
-  const {setRole} = useAppContext()
+  const {setRole,disconnectSocket} = useAppContext()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = useRef<any>(null);
   useEffect(() => {
@@ -32,12 +32,13 @@ function Logout(){
           ref.current = null;
         }, 1000);
         setRole()
+        disconnectSocket()
         router.push("/login");
       });
     } else {
       router.push("/");
     }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole]);
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole,disconnectSocket ]);
   return <div>Logout........</div>;
 }
 
