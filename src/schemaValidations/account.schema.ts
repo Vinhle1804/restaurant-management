@@ -33,7 +33,8 @@ export const CreateEmployeeAccountBody = z
     email: z.string().email(),
     avatar: z.string().url().optional(),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100)
+    confirmPassword: z.string().min(6).max(100),
+    role:  z.enum(RoleValues).optional()
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -56,10 +57,11 @@ export const UpdateEmployeeAccountBody = z
     changePassword: z.boolean().optional(),
     password: z.string().min(6).max(100).optional(),
     confirmPassword: z.string().min(6).max(100).optional(),
-    role:  z.enum(RoleValues)
+    role:  z.enum(RoleValues).optional()
+
   })
   .strict()
-  .superRefine(({ confirmPassword, password, changePassword}, ctx) => {
+  .superRefine(({ confirmPassword, password, changePassword }, ctx) => {
     if (changePassword) {
       if (!password || !confirmPassword) {
         ctx.addIssue({
@@ -92,7 +94,9 @@ export const ChangePasswordBody = z
   .object({
     oldPassword: z.string().min(6).max(100),
     password: z.string().min(6).max(100),
-    confirmPassword: z.string().min(6).max(100)
+    confirmPassword: z.string().min(6).max(100),
+    
+    
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
@@ -149,7 +153,7 @@ export const CreateGuestRes = z.object({
   data: z.object({
     id: z.number(),
     name: z.string(),
-    role: z.enum(RoleValues),
+    role: z.enum(RoleValues).optional(),
     tableNumber: z.number().nullable(),
     createdAt: z.date(),
     updatedAt: z.date()

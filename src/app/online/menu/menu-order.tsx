@@ -6,9 +6,9 @@ import { cn, formatCurrency, handleErrorApi } from "@/lib/utils";
 import Quantity from "./quantity";
 import { useMemo, useState } from "react";
 import { GuestCreateOrdersBodyType } from "@/schemaValidations/guest.schema";
-import { useGuestOrderMutation } from "@/queries/useGuest";
 import { useRouter } from "next/navigation";
 import { DishStatus } from "@/constants/type";
+import { useGuestOnlineOrderMutation } from "@/queries/useGuestOnline";
 
 // fake data
 
@@ -17,7 +17,7 @@ export default function MenuOrder() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const dishes = data?.payload.data ?? [];
   const [orders, setOrder] = useState<GuestCreateOrdersBodyType>([]);
-  const {mutateAsync} = useGuestOrderMutation()
+  const {mutateAsync} = useGuestOnlineOrderMutation()
   const router = useRouter()
   const handleQuantityChange = (dishId: number, quantity: number) => {
     setOrder((prevOrders) => {
@@ -46,7 +46,7 @@ export default function MenuOrder() {
   const handleORder = async () => {
 try {
    await mutateAsync(orders)
-    router.push('/guest/orders')
+    router.push('/online/orders')
 } catch (error) {
     handleErrorApi({ error,  setError: () => {} }); // xử lý lỗi bằng function riêng
   }

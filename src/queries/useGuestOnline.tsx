@@ -1,9 +1,8 @@
 import guestOnlineApiRequest from "@/apiRequests/onlineGuest"
 import { useMutation } from "@tanstack/react-query"
 
-export const useLoginMutation = () =>{
+export const useGuestOnlineOrderMutation = () =>{
     return useMutation({
-        mutationFn: guestOnlineApiRequest.login
+        mutationFn: guestOnlineApiRequest.order
     })
 }
-
