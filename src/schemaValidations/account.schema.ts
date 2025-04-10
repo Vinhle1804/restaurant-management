@@ -5,7 +5,7 @@ export const AccountSchema = z.object({
   id: z.number(),
   name: z.string(),
   email: z.string(),
-  role: z.string(),
+  role: z.string().optional(),
   avatar: z.string().nullable()
 })
 
