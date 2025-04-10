@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { decodeToken } from "./lib/utils";
 import { Role } from "./constants/type";
 
+const guestOnlinePaths = ["/online-guest"];
 const managePaths = ["/manage"];
 const guestPaths = ["/guest"];
 const onlyOwnerPaths = ["/manage/accounts"]
@@ -46,7 +47,10 @@ const isGuestGoToManagePath = role === Role.Guest && managePaths.some((path)=> p
 const isNotGuestGoToGuestPath = role !== Role.Guest && guestPaths.some((path)=> pathname.startsWith(path))
 //khong phai owner nhung co tinh truy cap vao cac route owner
 const isNotOwnerGoToOwnerPath = role !== Role.Owner && onlyOwnerPaths.some((path) => pathname.startsWith(path))
-if(isGuestGoToManagePath|| isNotGuestGoToGuestPath || isNotOwnerGoToOwnerPath) {
+//k phai online guest nhung co tinh truy cap vao cac route online guest
+const isNotGuestOnlineGoToGuestPath = role !== Role.GuestOnline && guestOnlinePaths.some((path)=> pathname.startsWith(path))
+
+if(isGuestGoToManagePath|| isNotGuestGoToGuestPath || isNotOwnerGoToOwnerPath || isNotGuestOnlineGoToGuestPath) {
   return NextResponse.redirect(new URL("/", request.url));
 
 }
@@ -60,5 +64,5 @@ return NextResponse.next();
  
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/manage/:path*","/guest/:path*", "/login"],
+  matcher: ["/manage/:path*","/guest/:path*", "/login","/online-guest/:path*"],
 };
