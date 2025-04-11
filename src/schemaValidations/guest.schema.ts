@@ -9,8 +9,8 @@ export const GuestLoginBody = z
     token: z.string()
   })
   .strict()
-export type GuestLoginBodyType = z.TypeOf<typeof GuestLoginBody>
 
+export type GuestLoginBodyType = z.TypeOf<typeof GuestLoginBody>
 
 export const GuestLoginRes = z.object({
   data: z.object({
@@ -27,8 +27,8 @@ export const GuestLoginRes = z.object({
   }),
   message: z.string()
 })
-export type GuestLoginResType = z.TypeOf<typeof GuestLoginRes>
 
+export type GuestLoginResType = z.TypeOf<typeof GuestLoginRes>
 
 export const GuestCreateOrdersBody = z.array(
   z.object({
@@ -36,15 +36,16 @@ export const GuestCreateOrdersBody = z.array(
     quantity: z.number()
   })
 )
-export type GuestCreateOrdersBodyType = z.TypeOf<typeof GuestCreateOrdersBody>
 
+export type GuestCreateOrdersBodyType = z.TypeOf<typeof GuestCreateOrdersBody>
 
 export const GuestCreateOrdersRes = z.object({
   message: z.string(),
   data: z.array(OrderSchema)
 })
+
 export type GuestCreateOrdersResType = z.TypeOf<typeof GuestCreateOrdersRes>
 
-
 export const GuestGetOrdersRes = GuestCreateOrdersRes
+
 export type GuestGetOrdersResType = z.TypeOf<typeof GuestGetOrdersRes>

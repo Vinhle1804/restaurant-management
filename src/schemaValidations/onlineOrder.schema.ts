@@ -15,8 +15,8 @@ const DishSnapshotSchema = z.object({
 })
 export const OrderOnlineSchema = z.object({
   id: z.number(),
-  guestOnlineId: z.number().nullable(),
-  guestOnline: z
+  accountId: z.number().nullable(),
+  account: z
     .object({
       id: z.number(),
       name: z.string(),
@@ -34,21 +34,38 @@ export const OrderOnlineSchema = z.object({
   updatedAt: z.date()
 })
 
+export const GetOrdersOnlineQueryParams = z.object({
+  fromDate: z.coerce.date().optional(),
+  toDate: z.coerce.date().optional()
+})
+export type GetOrdersOnlineQueryParamsType = z.TypeOf<typeof GetOrdersOnlineQueryParams>
 
+export const GetOrdersOnlineRes = z.object({
+  message: z.string(),
+  data: z.array(OrderOnlineSchema)
+})
 
+export const GetOrderOnlineDetailRes = z.object({
+  message: z.string(),
+  data: OrderOnlineSchema
+})
+export type GetOrderDetailResType = z.TypeOf<typeof GetOrderOnlineDetailRes>
 
+export const UpdateOrderOnlineBody = z.object({
+  status: z.enum(OrderStatusValues),
+  dishId: z.number(),
+  quantity: z.number()
+})
+export type UpdateOrderOnlineBodyType = z.TypeOf<typeof UpdateOrderOnlineBody>
 
+export const OrderParam = z.object({
+  orderId: z.coerce.number()
+})
+export type OrderParamType = z.TypeOf<typeof OrderParam>
 
+export const UpdateOrderOnlineRes = z.object({
+  message: z.string(),
+  data: OrderOnlineSchema
+})
 
-
-
-
-
-
-
-
-
-
-
-
-
+export type UpdateOrderOnlineResType = z.TypeOf<typeof UpdateOrderOnlineRes>

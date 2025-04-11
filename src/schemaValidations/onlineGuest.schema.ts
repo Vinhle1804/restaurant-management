@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { OrderOnlineSchema } from "./orderOnline.schema"
+import { OrderOnlineSchema } from "./onlineOrder.schema"
 
 export const GuestOnlineCreateOrdersBody = z.array(
   z.object({

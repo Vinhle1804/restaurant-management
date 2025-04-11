@@ -37,7 +37,6 @@ export const OrderSchema = z.object({
   updatedAt: z.date()
 })
 
-
 export const UpdateOrderBody = z.object({
   status: z.enum(OrderStatusValues),
   dishId: z.number(),
@@ -79,7 +78,6 @@ export const GetOrderDetailRes = z.object({
     table: TableSchema
   })
 })
-
 export type GetOrderDetailResType = z.TypeOf<typeof GetOrderDetailRes>
 
 export const PayGuestOrdersBody = z.object({

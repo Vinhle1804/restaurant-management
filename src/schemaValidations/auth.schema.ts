@@ -18,7 +18,7 @@ export const LoginRes = z.object({
       id: z.number(),
       name: z.string(),
       email: z.string(),
-      role: z.enum([Role.Owner, Role.Employee,Role.GuestOnline])
+      role: z.enum([Role.Owner, Role.Employee,Role.OrderGuest])
     })
   }),
   message: z.string()
