@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from "@/components/ui/sonner"
 import AppProvider from '@/components/app-provider'
+import ReduxProvider from '@/redux/redux-provider'
 
 const fontSans = Inter({
   subsets: ['latin'],
@@ -24,10 +25,12 @@ export default function RootLayout({
     <html lang='en' suppressHydrationWarning>
       <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
         <AppProvider>
+          <ReduxProvider>
         <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
         </ThemeProvider>
+        </ReduxProvider>
         </AppProvider>
       </body>
     </html>
