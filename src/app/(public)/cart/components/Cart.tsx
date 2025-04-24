@@ -1,7 +1,7 @@
 "use client";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDishListQuery } from "@/queries/useDish";
 import Image from "next/image";
 import Swal from "sweetalert2";
@@ -25,6 +25,20 @@ interface Dish {
   status: "Available" | "Unavailable" | "Hidden";
 }
 
+const deliveryOptions = [
+  {
+    id: "priority",
+    label: "Ưu tiên",
+    time: "< 30 phút",
+    price: 23000,
+    description:
+      "Đơn hàng của bạn sẽ được ưu tiên giao trong thời gian ngắn hơn. Bạn cũng sẽ nhận được một phiếu ưu đãi nếu đ...",
+  },
+  { id: "fast", label: "Nhanh", time: "30 phút", price: 18000 },
+  { id: "saving", label: "Tiết kiệm", time: "45 phút", price: 14000 },
+  { id: "later", label: "Đặt giao sau", time: "", price: 0 },
+];
+
 const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -32,7 +46,8 @@ const Cart = () => {
   const cart = useSelector((state: RootState) => state.cart.cart);
   const [selectedDelivery, setSelectedDelivery] = useState("fast"); // Default to "Nhanh" option
   const [utensilsNeeded, setUtensilsNeeded] = useState(false);
-  
+  const [totalPrice, setTotalPrice] = useState(0);
+
   // State for address
   const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
   
@@ -64,27 +79,20 @@ const Cart = () => {
     localStorage.setItem('deliveryAddress', JSON.stringify(address));
   };
 
-  const calculateSubtotal = () => {
+  const calculateSubtotal = useCallback(() => {
     return dishes.reduce(
       (total, dish) => total + dish.price * dish.quantity,
       0
     );
-  };
+  }, [dishes]);
 
-  // Delivery options based on screenshots
-  const deliveryOptions = [
-    {
-      id: "priority",
-      label: "Ưu tiên",
-      time: "< 30 phút",
-      price: 23000,
-      description:
-        "Đơn hàng của bạn sẽ được ưu tiên giao trong thời gian ngắn hơn. Bạn cũng sẽ nhận được một phiếu ưu đãi nếu đ...",
-    },
-    { id: "fast", label: "Nhanh", time: "30 phút", price: 18000 },
-    { id: "saving", label: "Tiết kiệm", time: "45 phút", price: 14000 },
-    { id: "later", label: "Đặt giao sau", time: "", price: 0 },
-  ];
+  useEffect(() => {
+    const subtotal = calculateSubtotal();
+    const deliveryFee =
+      deliveryOptions.find((option) => option.id === selectedDelivery)?.price || 0;
+  
+    setTotalPrice(subtotal + deliveryFee);
+  }, [dishes, selectedDelivery, calculateSubtotal]);
 
   useEffect(() => {
     // Kiểm tra nếu có địa chỉ trong localStorage
@@ -262,7 +270,6 @@ const Cart = () => {
               </p>
             </div>
             <button className="ml-auto" >
-      
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
@@ -292,7 +299,10 @@ const Cart = () => {
                 ? "border-green-500"
                 : "border-gray-200"
             }`}
-            onClick={() => setSelectedDelivery(option.id)}
+            onClick={() => {
+              setSelectedDelivery(option.id);
+              setTotalPrice(totalPrice + (option.price || 0));
+            }}
           >
             <div className="flex justify-between items-center">
               <div>
@@ -346,7 +356,7 @@ const Cart = () => {
           <span>Tổng cộng</span>
           <div className="text-right">
             <span className="font-bold text-xl block">
-              {calculateSubtotal().toLocaleString()}đ
+              {totalPrice.toLocaleString()}đ
             </span>
           </div>
         </div>
