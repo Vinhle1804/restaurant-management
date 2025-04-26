@@ -12,7 +12,7 @@ import {
 } from "@/redux/action/cartAction";
 import type { AppDispatch } from "@/redux/store";
 import Link from "next/link";
-import DeliveryAddress, { Address } from "./delivery-address";
+import DeliveryAddress from "./delivery-address";
 import { ChevronRight } from "lucide-react";
 
 interface Dish {
@@ -23,6 +23,14 @@ interface Dish {
   description: string;
   image: string;
   status: "Available" | "Unavailable" | "Hidden";
+}
+
+interface Address {
+  addressDetail: string;
+  ward: string;
+  districtName: string;
+  provinceName: string;
+  notes?: string; // Thêm trường notes để lưu hướng dẫn giao hàng
 }
 
 const deliveryOptions = [
@@ -47,11 +55,35 @@ const Cart = () => {
   const [selectedDelivery, setSelectedDelivery] = useState("fast"); // Default to "Nhanh" option
   const [utensilsNeeded, setUtensilsNeeded] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
-
-  // State for address
+  const [showDetailInput, setShowDetailInput] = useState(false);
+  
+  // Tối ưu hóa state quản lý địa chỉ
   const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
   
   const { data } = useDishListQuery();
+
+  // Xử lý cập nhật địa chỉ bao gồm cả chi tiết
+  const handleAddressUpdate = (updates: Partial<Address>) => {
+    if (!deliveryAddress) return;
+    
+    const updatedAddress = { ...deliveryAddress, ...updates };
+    setDeliveryAddress(updatedAddress);
+    
+    // Lưu địa chỉ đã cập nhật vào localStorage
+    localStorage.setItem('deliveryAddress', JSON.stringify(updatedAddress));
+  };
+
+  // Xử lý khi người dùng nhập chi tiết bổ sung
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleAddressUpdate({ notes: e.target.value });
+  };
+
+  // Xử lý khi người dùng click vào nút edit (ChevronRight)
+  const handleEditAddress = () => {
+    // Trong thực tế, có thể mở modal hoặc redirect đến trang chỉnh sửa địa chỉ
+    // Ví dụ đơn giản: Toggle showDetailInput
+    setShowDetailInput(true);
+  };
 
   const handleIncreaseQuantity = (id: number) => {
     dispatch(increaseQuantity(id));
@@ -73,10 +105,17 @@ const Cart = () => {
     }
   };
 
+  // Xử lý khi người dùng thêm mới hoặc thay đổi địa chỉ chính
   const handleAddressAdded = (address: Address) => {
     setDeliveryAddress(address);
     // Lưu địa chỉ vào localStorage để giữ lại khi refresh trang
     localStorage.setItem('deliveryAddress', JSON.stringify(address));
+  };
+
+  // Format địa chỉ để hiển thị
+  const getFormattedAddress = () => {
+    if (!deliveryAddress) return "";
+    return `${deliveryAddress.addressDetail}, ${deliveryAddress.ward}, ${deliveryAddress.districtName}, ${deliveryAddress.provinceName}`;
   };
 
   const calculateSubtotal = useCallback(() => {
@@ -139,12 +178,6 @@ const Cart = () => {
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
 
-  // Format địa chỉ để hiển thị
-  const getFormattedAddress = () => {
-    if (!deliveryAddress) return "";
-    return `${deliveryAddress.addressDetail}, ${deliveryAddress.ward}, ${deliveryAddress.districtName}, ${deliveryAddress.provinceName}`;
-  };
-
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Order summary */}
@@ -195,10 +228,6 @@ const Cart = () => {
             </div>
           </div>
         ))}
-
-        <div className="text-sm text-gray-600 mt-4">
-          <p>Đặt thêm 51.000đ để được giảm 3.000đ phí giao hàng!</p>
-        </div>
       </div>
 
       {/* Price breakdown */}
@@ -251,7 +280,9 @@ const Cart = () => {
       <div className="flex items-center justify-between mb-2 p-4">
         <h2 className="text-lg font-semibold">Địa chỉ giao hàng</h2>
         <div className="ml-auto flex items-center gap-2">
-          <DeliveryAddress onAddressAdded={handleAddressAdded} />
+          <DeliveryAddress 
+            onAddressAdded={handleAddressAdded} 
+          />
         </div>
       </div>
       
@@ -269,14 +300,56 @@ const Cart = () => {
                   : getFormattedAddress()}
               </p>
             </div>
-            <button className="ml-auto" >
+            <button 
+              className="ml-auto"
+              onClick={handleEditAddress}
+            >
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
+          
+          {/* Chi tiết địa chỉ và hướng dẫn */}
           <div className="mt-2">
-            <button className="text-blue-500 text-sm">
-              Thêm chi tiết địa chỉ và hướng dẫn giao hàng
-            </button>
+            {!deliveryAddress.notes ? (
+              <button 
+                className="text-blue-500 text-sm"
+                onClick={() => setShowDetailInput(true)}
+              >
+                Thêm chi tiết địa chỉ và hướng dẫn giao hàng
+              </button>
+            ) : (
+              <div className="mt-2">
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Chi tiết:</span> {deliveryAddress.notes}
+                </p>
+                <button 
+                  className="text-blue-500 text-sm mt-1"
+                  onClick={() => setShowDetailInput(true)}
+                >
+                  Chỉnh sửa
+                </button>
+              </div>
+            )}
+            
+            {showDetailInput && (
+              <div className="mt-2">
+                <textarea
+                  className="w-full p-2 border rounded"
+                  rows={2}
+                  placeholder="Nhập chi tiết địa chỉ và hướng dẫn cho tài xế..."
+                  value={deliveryAddress.notes || ""}
+                  onChange={handleNotesChange}
+                />
+                <div className="flex justify-end mt-2">
+                  <button
+                    className="px-3 py-1 bg-green-500 text-white rounded"
+                    onClick={() => setShowDetailInput(false)}
+                  >
+                    Lưu
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -299,10 +372,7 @@ const Cart = () => {
                 ? "border-green-500"
                 : "border-gray-200"
             }`}
-            onClick={() => {
-              setSelectedDelivery(option.id);
-              setTotalPrice(totalPrice + (option.price || 0));
-            }}
+            onClick={() => setSelectedDelivery(option.id)}
           >
             <div className="flex justify-between items-center">
               <div>
