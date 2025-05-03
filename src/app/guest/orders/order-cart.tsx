@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { useEffect, useMemo } from "react"
 import { PayGuestOrdersResType, UpdateOrderResType } from "@/schemaValidations/order.schema"
 import { toast } from "sonner"
-import { OrderStatus } from "@/constants/type"
+import { OrderStatus } from "@/constants/orders"
 import { useAppContext } from "@/components/app-provider"
 
 

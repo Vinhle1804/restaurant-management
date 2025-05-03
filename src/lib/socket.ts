@@ -10,3 +10,11 @@ const socket = io(envConfig.NEXT_PUBLIC_API_ENDPOINT,{
 })
 
 export default socket
+
+export const generateSocketInstance = (accessToken: string) =>{
+  return io(envConfig.NEXT_PUBLIC_API_ENDPOINT,{
+    auth:{
+        Authorization: `Bearer ${accessToken}`
+    }
+})
+}

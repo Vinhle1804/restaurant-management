@@ -11,7 +11,8 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useGuestLoginMutation } from '@/queries/useGuest'
 import { useAppContext } from '@/components/app-provider'
-import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
+import {  handleErrorApi } from '@/lib/utils'
+import { generateSocketInstance } from '@/lib/socket'
 
 export default function GuestLoginForm() {
   const { setRole, setSocket } = useAppContext()

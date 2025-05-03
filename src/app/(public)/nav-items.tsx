@@ -1,7 +1,6 @@
 "use client";
 export const runtime = "nodejs"
 import { useAppContext } from "@/components/app-provider";
-import { Role } from "@/constants/type";
 import { cn, handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { RoleType } from "@/types/jwt.types";
@@ -19,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Role } from "@/constants/roles";
  
 
 const menuItems: {

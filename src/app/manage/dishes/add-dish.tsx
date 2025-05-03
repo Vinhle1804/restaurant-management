@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 // import { getVietnameseDishStatus } from '@/lib/utils'
 import { CreateDishBody, CreateDishBodyType } from '@/schemaValidations/dish.schema'
-import { DishStatus, DishStatusValues } from '@/constants/type'
+import { DishStatus, DishStatusValues } from '@/constants/dishs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAddDishMutation } from '@/queries/useDish'

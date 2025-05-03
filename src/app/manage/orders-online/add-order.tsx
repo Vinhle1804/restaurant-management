@@ -27,7 +27,7 @@ import { CreateOrdersBodyType } from "@/schemaValidations/order.schema";
 import Quantity from "@/app/guest/menu/quantity";
 import Image from "next/image";
 import { cn, formatCurrency, handleErrorApi } from "@/lib/utils";
-import { DishStatus } from "@/constants/type";
+import { DishStatus } from "@/constants/dishs";
 import { useDishListQuery } from "@/queries/useDish";
 import { useCreateOrderMutation } from "@/queries/useOrder";
 import { useCreateGuestMutation } from "@/queries/useAccount";

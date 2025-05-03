@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { GuestCreateOrdersBodyType } from "@/schemaValidations/guest.schema";
 import { useGuestOrderMutation } from "@/queries/useGuest";
 import { useRouter } from "next/navigation";
-import { DishStatus } from "@/constants/type";
+import { DishStatus } from "@/constants/dishs";
 
 // fake data
 

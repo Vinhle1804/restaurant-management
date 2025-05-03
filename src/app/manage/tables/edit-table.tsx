@@ -34,7 +34,7 @@ import {
   UpdateTableBody,
   UpdateTableBodyType,
 } from "@/schemaValidations/table.schema";
-import { TableStatus, TableStatusValues } from "@/constants/type";
+import { TableStatus, TableStatusValues } from "@/constants/tables";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { useGetTableQuery, useUpdateTableMutation } from "@/queries/useTable";

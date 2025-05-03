@@ -31,7 +31,6 @@ import { useGetAccount, useUpdateAccountMutation } from "@/queries/useAccount";
 import { useUploadMediaMutation } from "@/queries/useMedia";
 import { toast } from "sonner";
 import { handleErrorApi } from "@/lib/utils";
-import { Role, RoleValues } from "@/constants/type";
 import {
   Select,
   SelectContent,
@@ -39,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Role, RoleValues } from "@/constants/roles";
 
 export default function EditEmployee({
   id,

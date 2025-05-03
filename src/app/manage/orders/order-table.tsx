@@ -30,7 +30,7 @@ import { createContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { getVietnameseOrderStatus, handleErrorApi } from "@/lib/utils";
-import { OrderStatusValues } from "@/constants/type";
+import { OrderStatusValues } from "@/constants/orders";
 import OrderStatics from "@/app/manage/orders/order-statics";
 import orderTableColumns from "@/app/manage/orders/order-table-columns";
 import { useOrderService } from "@/app/manage/orders/order.service";

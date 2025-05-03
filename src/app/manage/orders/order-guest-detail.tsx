@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { OrderStatus } from '@/constants/type'
+import { OrderStatus } from '@/constants/orders'
 import {
   OrderStatusIcon,
   formatCurrency,

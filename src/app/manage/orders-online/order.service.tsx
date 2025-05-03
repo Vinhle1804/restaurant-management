@@ -1,5 +1,5 @@
 import { OrderObjectByGuestID, ServingGuestByTableNumber, Statics } from '@/app/manage/orders/order-table'
-import { OrderStatus } from '@/constants/type'
+import { OrderStatus } from '@/constants/orders'
 import { GetOrdersResType } from '@/schemaValidations/order.schema'
 import { useMemo } from 'react'
 

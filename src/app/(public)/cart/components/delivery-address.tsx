@@ -26,13 +26,14 @@ type LocationItem = {
 export type Address = {
   id: string;
   fullName: string;
-  phone: string;
+  phone: number;
   addressDetail: string;
   province: string;
   provinceName: string;
   district: string;
   districtName: string;
   ward: string;
+  notes?: string;
 }
 type DeliveryAddressProps = {
   onAddressAdded: (address: Address) => void;

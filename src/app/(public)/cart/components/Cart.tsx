@@ -1,7 +1,7 @@
 "use client";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, FormEvent } from "react";
 import { useDishListQuery } from "@/queries/useDish";
 import Image from "next/image";
 import Swal from "sweetalert2";
@@ -12,8 +12,14 @@ import {
 } from "@/redux/action/cartAction";
 import type { AppDispatch } from "@/redux/store";
 import Link from "next/link";
-import DeliveryAddress from "./delivery-address";
+import DeliveryAddress, { Address } from "./delivery-address";
 import { ChevronRight } from "lucide-react";
+import { DishStatusType } from "@/constants/dishs";
+
+enum PaymentMethod {
+  MoMo = "MoMo",
+  Cod = "COD",
+}
 
 interface Dish {
   id: number;
@@ -22,15 +28,7 @@ interface Dish {
   price: number;
   description: string;
   image: string;
-  status: "Available" | "Unavailable" | "Hidden";
-}
-
-interface Address {
-  addressDetail: string;
-  ward: string;
-  districtName: string;
-  provinceName: string;
-  notes?: string; // Thêm trường notes để lưu hướng dẫn giao hàng
+  status: DishStatusType;
 }
 
 const deliveryOptions = [
@@ -51,37 +49,42 @@ const Cart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const cart = useSelector((state: RootState) => state.cart.cart);
-  const [selectedDelivery, setSelectedDelivery] = useState("fast"); // Default to "Nhanh" option
+  const [selectedDelivery, setSelectedDelivery] = useState("fast");
   const [utensilsNeeded, setUtensilsNeeded] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [showDetailInput, setShowDetailInput] = useState(false);
-  
-  // Tối ưu hóa state quản lý địa chỉ
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.MoMo);
+  const [showOptions, setShowOptions] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
   
   const { data } = useDishListQuery();
 
-  // Xử lý cập nhật địa chỉ bao gồm cả chi tiết
+  // Handle payment method selection
+  const handleSelectPayment = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+    setShowOptions(false);
+  };
+
+  // Handle address update including details
   const handleAddressUpdate = (updates: Partial<Address>) => {
     if (!deliveryAddress) return;
     
     const updatedAddress = { ...deliveryAddress, ...updates };
     setDeliveryAddress(updatedAddress);
     
-    // Lưu địa chỉ đã cập nhật vào localStorage
+    // Save updated address to localStorage
     localStorage.setItem('deliveryAddress', JSON.stringify(updatedAddress));
   };
 
-  // Xử lý khi người dùng nhập chi tiết bổ sung
+  // Handle user input for notes
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleAddressUpdate({ notes: e.target.value });
   };
 
-  // Xử lý khi người dùng click vào nút edit (ChevronRight)
+  // Handle edit address button click
   const handleEditAddress = () => {
-    // Trong thực tế, có thể mở modal hoặc redirect đến trang chỉnh sửa địa chỉ
-    // Ví dụ đơn giản: Toggle showDetailInput
     setShowDetailInput(true);
   };
 
@@ -105,14 +108,14 @@ const Cart = () => {
     }
   };
 
-  // Xử lý khi người dùng thêm mới hoặc thay đổi địa chỉ chính
+  // Handle when user adds or changes the main address
   const handleAddressAdded = (address: Address) => {
     setDeliveryAddress(address);
-    // Lưu địa chỉ vào localStorage để giữ lại khi refresh trang
+    // Save address to localStorage to retain it when refreshing the page
     localStorage.setItem('deliveryAddress', JSON.stringify(address));
   };
 
-  // Format địa chỉ để hiển thị
+  // Format address for display
   const getFormattedAddress = () => {
     if (!deliveryAddress) return "";
     return `${deliveryAddress.addressDetail}, ${deliveryAddress.ward}, ${deliveryAddress.districtName}, ${deliveryAddress.provinceName}`;
@@ -125,6 +128,74 @@ const Cart = () => {
     );
   }, [dishes]);
 
+  // Handle order submission
+  const handleSubmitOrder = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!deliveryAddress) {
+      Swal.fire({
+        title: "Lỗi",
+        text: "Vui lòng thêm địa chỉ giao hàng",
+        icon: "error",
+      });
+      return;
+    }
+    
+    if (dishes.length === 0) {
+      Swal.fire({
+        title: "Lỗi",
+        text: "Giỏ hàng của bạn đang trống",
+        icon: "error",
+      });
+      return;
+    }
+    
+    setSubmitting(true);
+    
+    try {
+      // Construct order data
+      const orderData = {
+        items: dishes.map(dish => ({
+          dishId: dish.id,
+          quantity: dish.quantity,
+          price: dish.price
+        })),
+        deliveryAddress: deliveryAddress,
+        deliveryOption: selectedDelivery,
+        paymentMethod: paymentMethod,
+        utensilsNeeded: utensilsNeeded,
+        subtotal: calculateSubtotal(),
+        deliveryFee: deliveryOptions.find(option => option.id === selectedDelivery)?.price || 0,
+        totalPrice: totalPrice,
+      };
+      
+      // Here you would normally send the order to your API
+      console.log("Submitting order:", orderData);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Show success message
+      Swal.fire({
+        title: "Thành công!",
+        text: "Đơn hàng của bạn đã được đặt thành công",
+        icon: "success",
+      });
+      
+      // Here you might want to clear the cart or redirect to an order confirmation page
+      
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      Swal.fire({
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.",
+        icon: "error",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const subtotal = calculateSubtotal();
     const deliveryFee =
@@ -134,7 +205,7 @@ const Cart = () => {
   }, [dishes, selectedDelivery, calculateSubtotal]);
 
   useEffect(() => {
-    // Kiểm tra nếu có địa chỉ trong localStorage
+    // Check if there's an address in localStorage
     const savedAddress = localStorage.getItem('deliveryAddress');
     if (savedAddress) {
       try {
@@ -179,55 +250,61 @@ const Cart = () => {
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <form onSubmit={handleSubmitOrder} className="flex flex-col h-full bg-gray-50">
       {/* Order summary */}
       <div className="p-4 bg-white">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Tóm tắt đơn hàng</h2>
-          <button className="text-blue-500">
-            <Link href="/online/menu" className="text-blue-500 hover:underline">
-              Thêm món
-            </Link>
-          </button>
+          <Link href="/online/menu" className="text-blue-500 hover:underline">
+            Thêm món
+          </Link>
         </div>
 
-        {dishes.map((dish) => (
-          <div key={dish.id} className="flex items-center py-2">
-            <div className="h-20 w-20 bg-gray-200 mr-4 rounded">
-              {dish.image && (
-                <Image
-                  src={dish.image}
-                  height={80}
-                  width={80}
-                  alt={dish.name}
-                  className="w-full h-full object-cover mr-4"
-                />
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold">{dish.name}</h3>
-              <p className="text-gray-700">{dish.price.toLocaleString()}đ</p>
-              <button className="text-blue-500 text-sm">Chỉnh sửa</button>
-            </div>
-            <div className="flex items-center">
-              <div className="border rounded-full overflow-hidden flex items-center">
-                <button
-                  className="px-3 py-2 bg-white"
-                  onClick={() => handleDecreaseQuantity(dish.id, dish.quantity)}
-                >
-                  -
-                </button>
-                <span className="px-3">{dish.quantity}</span>
-                <button
-                  className="px-3 py-2 bg-white"
-                  onClick={() => handleIncreaseQuantity(dish.id)}
-                >
-                  +
-                </button>
+        {dishes.length > 0 ? (
+          dishes.map((dish) => (
+            <div key={dish.id} className="flex items-center py-2">
+              <div className="h-20 w-20 bg-gray-200 mr-4 rounded">
+                {dish.image && (
+                  <Image
+                    src={dish.image}
+                    height={80}
+                    width={80}
+                    alt={dish.name}
+                    className="w-full h-full object-cover mr-4"
+                  />
+                )}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">{dish.name}</h3>
+                <p className="text-gray-700">{dish.price.toLocaleString()}đ</p>
+                <button type="button" className="text-blue-500 text-sm">Chỉnh sửa</button>
+              </div>
+              <div className="flex items-center">
+                <div className="border rounded-full overflow-hidden flex items-center">
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-white"
+                    onClick={() => handleDecreaseQuantity(dish.id, dish.quantity)}
+                  >
+                    -
+                  </button>
+                  <span className="px-3">{dish.quantity}</span>
+                  <button
+                    type="button"
+                    className="px-3 py-2 bg-white"
+                    onClick={() => handleIncreaseQuantity(dish.id)}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
+          ))
+        ) : (
+          <div className="text-center py-4 text-gray-500">
+            Giỏ hàng của bạn đang trống
           </div>
-        ))}
+        )}
       </div>
 
       {/* Price breakdown */}
@@ -238,7 +315,7 @@ const Cart = () => {
         </div>
         <div className="flex justify-between mb-2">
           <span>Phí áp dụng</span>
-          <span>21.000</span>
+          <span>21.000đ</span>
         </div>
       </div>
 
@@ -293,7 +370,8 @@ const Cart = () => {
               📍
             </div>
             <div>
-              <h3 className="font-medium">{deliveryAddress.addressDetail}</h3>
+              <h3 className="font-medium">{deliveryAddress.fullName}</h3>
+              <h3 className="font-medium">{deliveryAddress.phone}</h3>
               <p className="text-sm text-gray-500">
                 {getFormattedAddress().length > 50
                   ? `${getFormattedAddress().substring(0, 50)}...`
@@ -301,6 +379,7 @@ const Cart = () => {
               </p>
             </div>
             <button 
+              type="button"
               className="ml-auto"
               onClick={handleEditAddress}
             >
@@ -308,10 +387,11 @@ const Cart = () => {
             </button>
           </div>
           
-          {/* Chi tiết địa chỉ và hướng dẫn */}
+          {/* Address details and instructions */}
           <div className="mt-2">
             {!deliveryAddress.notes ? (
               <button 
+                type="button"
                 className="text-blue-500 text-sm"
                 onClick={() => setShowDetailInput(true)}
               >
@@ -323,6 +403,7 @@ const Cart = () => {
                   <span className="font-medium">Chi tiết:</span> {deliveryAddress.notes}
                 </p>
                 <button 
+                  type="button"
                   className="text-blue-500 text-sm mt-1"
                   onClick={() => setShowDetailInput(true)}
                 >
@@ -342,6 +423,7 @@ const Cart = () => {
                 />
                 <div className="flex justify-end mt-2">
                   <button
+                    type="button"
                     className="px-3 py-1 bg-green-500 text-white rounded"
                     onClick={() => setShowDetailInput(false)}
                   >
@@ -367,20 +449,29 @@ const Cart = () => {
         {deliveryOptions.map((option) => (
           <div
             key={option.id}
-            className={`p-4 rounded-lg border mb-2 ${
+            className={`p-4 rounded-lg border mb-2 cursor-pointer ${
               selectedDelivery === option.id
                 ? "border-green-500"
                 : "border-gray-200"
             }`}
             onClick={() => setSelectedDelivery(option.id)}
           >
+            <input
+              type="radio"
+              id={`delivery-${option.id}`}
+              name="deliveryOption"
+              value={option.id}
+              checked={selectedDelivery === option.id}
+              onChange={() => setSelectedDelivery(option.id)}
+              className="hidden"
+            />
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-medium">{option.label}</span>
                 {option.time && <span className="ml-2">• {option.time}</span>}
               </div>
               <span>
-                {option.price ? `${option.price.toLocaleString()}` : ""}
+                {option.price ? `${option.price.toLocaleString()}đ` : ""}
               </span>
             </div>
             {option.description && (
@@ -394,15 +485,56 @@ const Cart = () => {
       <div className="p-4 bg-white mt-2">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">Thông tin thanh toán</h3>
-          <button className="text-blue-500">Xem tất cả</button>
+          <button
+            type="button"
+            className="text-blue-500"
+            onClick={() => setShowOptions(!showOptions)}
+          >
+            {showOptions ? "Đóng" : "Xem tất cả"}
+          </button>
         </div>
 
+        {/* Currently selected method */}
         <div className="flex items-center mt-2">
           <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 mr-3">
-            <span>M</span>
+            <span>{paymentMethod.charAt(0)}</span>
           </div>
-          <span>MoMo</span>
+          <span>{paymentMethod}</span>
+          <input 
+            type="hidden" 
+            name="paymentMethod" 
+            value={paymentMethod} 
+          />
         </div>
+
+        {/* Other payment method options */}
+        {showOptions && (
+          <div className="mt-4 space-y-2">
+            {(Object.values(PaymentMethod)).map((method) => (
+              <div
+                key={method}
+                className={`flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded ${
+                  paymentMethod === method ? "bg-gray-100" : ""
+                }`}
+                onClick={() => handleSelectPayment(method)}
+              >
+                <input
+                  type="radio"
+                  id={`payment-${method}`}
+                  name="paymentMethodRadio"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={() => handleSelectPayment(method)}
+                  className="mr-2"
+                />
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 mr-3">
+                  <span>{method.charAt(0)}</span>
+                </div>
+                <label htmlFor={`payment-${method}`}>{method}</label>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Terms */}
@@ -431,17 +563,18 @@ const Cart = () => {
           </div>
         </div>
         <button 
+          type="submit"
           className={`w-full font-bold py-4 rounded-lg ${
-            deliveryAddress 
-              ? 'bg-green-500 text-white' 
+            deliveryAddress && dishes.length > 0 && !submitting
+              ? 'bg-green-500 text-white hover:bg-green-600' 
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
-          disabled={!deliveryAddress}
+          disabled={!deliveryAddress || dishes.length === 0 || submitting}
         >
-          Đặt đơn
+          {submitting ? 'Đang xử lý...' : 'Đặt đơn'}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

@@ -16,10 +16,11 @@ import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/queries/useAuth";
 import { toast } from "sonner";
-import { generateSocketInstance, handleErrorApi } from "@/lib/utils";
+import { handleErrorApi } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAppContext } from "@/components/app-provider";
+import { generateSocketInstance } from "@/lib/socket";
 
 export default function LoginForm() {
   const loginMutation = useLoginMutation();

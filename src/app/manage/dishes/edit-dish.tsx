@@ -19,12 +19,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getVietnameseDishStatus, handleErrorApi } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { UpdateDishBody, UpdateDishBodyType } from '@/schemaValidations/dish.schema'
-import { DishStatus, DishStatusValues } from '@/constants/type'
 import { Textarea } from '@/components/ui/textarea'
 import { useGetDishQuery, useUpdateDishMutation } from '@/queries/useDish'
 import { useUploadMediaMutation } from '@/queries/useMedia'
 import { toast } from 'sonner'
 import revalidateApiRequest from '@/apiRequests/revalidate'
+import { DishStatus, DishStatusValues } from '@/constants/dishs'
 
 export default function EditDish({
   id,

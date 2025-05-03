@@ -6,7 +6,7 @@ import { cn, formatCurrency } from "@/lib/utils";
 import Quantity from "./quantity";
 import { useMemo, useState } from "react";
 import { GuestCreateOrdersBodyType } from "@/schemaValidations/guest.schema";
-import { DishStatus } from "@/constants/type";
+import { DishStatus } from "@/constants/dishs";
 import { useDispatch } from "react-redux";
 import { addtoCart } from "@/redux/action/cartAction";
 import { AppDispatch } from "@/redux/store";

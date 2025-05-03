@@ -8,10 +8,11 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import RefreshToken from './refresh-token';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { decodeToken, generateSocketInstance, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'; // Sửa 'remmove' thành 'remove'
+import { decodeToken, getAccessTokenFromLocalStorage, removeTokenFromLocalStorage } from '@/lib/utils'; // Sửa 'remmove' thành 'remove'
 import { RoleType } from '@/types/jwt.types';
 import { Socket } from 'socket.io-client';
 import ListenLogoutSocket from './listen-logout-socket';
+import { generateSocketInstance } from '@/lib/socket';
 
 const queryClient = new QueryClient({
   defaultOptions: {

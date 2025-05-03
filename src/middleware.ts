@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decodeToken } from "./lib/utils";
-import { Role } from "./constants/type";
+import { Role } from "./constants/roles";
+
 
 const guestOnlinePaths = ["/online-guest"];
 const managePaths = ["/manage"];
