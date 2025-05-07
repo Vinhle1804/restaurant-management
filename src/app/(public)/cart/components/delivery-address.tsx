@@ -17,24 +17,9 @@ import { useEffect, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { PlusCircle } from 'lucide-react'
+import { Address, LocationItem } from '@/types/adress'
 
-type LocationItem = {
-  code: string;
-  name: string;
-}
 
-export type Address = {
-  id: string;
-  fullName: string;
-  phone: number;
-  addressDetail: string;
-  province: string;
-  provinceName: string;
-  district: string;
-  districtName: string;
-  ward: string;
-  notes?: string;
-}
 type DeliveryAddressProps = {
   onAddressAdded: (address: Address) => void;
 }

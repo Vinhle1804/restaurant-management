@@ -1,3 +1,5 @@
+//ORDER OFFLINE
+
 export const OrderStatus = {
   Pending: "Pending",
   Processing: "Processing",
@@ -14,3 +16,11 @@ export const OrderStatusValues = [
   OrderStatus.Paid,
 ] as const;
 export type OrderStatusType = (typeof OrderStatusValues)[number];
+
+//ORDER ONLINE
+export enum PaymentMethod {
+  MoMo = "MoMo",
+  Cod = "COD",
+}
+
+export type DeliveryOption = "priority" | "fast" | "saving" | "later";

@@ -1,66 +1,229 @@
 "use client";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useEffect, useState, useCallback, FormEvent } from "react";
+import { useDishListQuery } from "@/queries/useDish";
 import Image from "next/image";
+import Swal from "sweetalert2";
+import {
+  decreaseQuantity,
+  increaseQuantity,
+  removeItem,
+} from "@/redux/action/cartAction";
+import type { AppDispatch } from "@/redux/store";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import DeliveryAddress from "./delivery-address";
-import { deliveryOptions } from "@/constants/deliveryOptions";
-
-// Import custom hooks
-import { useCart } from "@/hooks/useCart";
-import { usePaymentMethod } from "@/hooks/usePaymentMethod";
-import { useDeliveryOptions } from "@/hooks/useDeliveryOptions";
-import { useOrder } from "@/hooks/useOrder";
-import { useDeliveryAddress } from "@/hooks/useDeliveryAdress";
+import { ChevronRight } from "lucide-react";
 import { PaymentMethod } from "@/constants/orders";
+import { Dish } from "@/types/dish";
+import { deliveryOptions } from "@/constants/deliveryOptions";
+import { Address } from "@/types/adress";
 
 const Cart = () => {
-  // Use custom hooks
-  const { 
-    dishes, 
-    loading, 
-    calculateSubtotal, 
-    handleIncreaseQuantity, 
-    handleDecreaseQuantity 
-  } = useCart();
+  const dispatch = useDispatch<AppDispatch>();
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const cart = useSelector((state: RootState) => state.cart.cart);
+  const [selectedDelivery, setSelectedDelivery] = useState("fast");
+  const [utensilsNeeded, setUtensilsNeeded] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [showDetailInput, setShowDetailInput] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.MoMo
+  );
+  const [showOptions, setShowOptions] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
 
-  const {
-    deliveryAddress,
-    showDetailInput,
-    setShowDetailInput,
-    handleAddressAdded,
-    handleNotesChange,
-    handleEditAddress,
-    getFormattedAddress
-  } = useDeliveryAddress();
+  const { data } = useDishListQuery();
 
-  const {
-    paymentMethod,
-    showOptions,
-    setShowOptions,
-    handleSelectPayment
-  } = usePaymentMethod();
+  // Handle payment method selection
+  const handleSelectPayment = (method: PaymentMethod) => {
+    setPaymentMethod(method);
+    setShowOptions(false);
+  };
 
-  const {
-    selectedDelivery,
-    setSelectedDelivery,
-    utensilsNeeded,
-    setUtensilsNeeded,
-    getDeliveryFee
-  } = useDeliveryOptions();
+  // Handle address update including details
+  const handleAddressUpdate = (updates: Partial<Address>) => {
+    if (!deliveryAddress) return;
 
-  const {
-    totalPrice,
-    submitting,
-    handleSubmitOrder
-  } = useOrder({
-    dishes,
-    calculateSubtotal,
-    deliveryAddress,
-    selectedDelivery,
-    getDeliveryFee,
-    paymentMethod,
-    utensilsNeeded
-  });
+    const updatedAddress = { ...deliveryAddress, ...updates };
+    setDeliveryAddress(updatedAddress);
+
+    // Save updated address to localStorage
+    localStorage.setItem("deliveryAddress", JSON.stringify(updatedAddress));
+  };
+
+  // Handle user input for notes
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleAddressUpdate({ notes: e.target.value });
+  };
+
+  // Handle edit address button click
+  const handleEditAddress = () => {
+    setShowDetailInput(true);
+  };
+
+  const handleIncreaseQuantity = (id: number) => {
+    dispatch(increaseQuantity(id));
+  };
+
+  const handleDecreaseQuantity = (id: number, quantity: number) => {
+    if (quantity > 1) {
+      dispatch(decreaseQuantity(id));
+    } else {
+      Swal.fire({
+        title: "Bạn có chắc chắn muốn xóa sản phẩm này?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Xóa",
+        cancelButtonText: "Hủy",
+      }).then((result) => {
+        if (result.isConfirmed) dispatch(removeItem(id));
+      });
+    }
+  };
+
+  // Handle when user adds or changes the main address
+  const handleAddressAdded = (address: Address) => {
+    setDeliveryAddress(address);
+    // Save address to localStorage to retain it when refreshing the page
+    localStorage.setItem("deliveryAddress", JSON.stringify(address));
+  };
+
+  // Format address for display
+  const getFormattedAddress = () => {
+    if (!deliveryAddress) return "";
+    return `${deliveryAddress.addressDetail}, ${deliveryAddress.ward}, ${deliveryAddress.districtName}, ${deliveryAddress.provinceName}`;
+  };
+
+  const calculateSubtotal = useCallback(() => {
+    return dishes.reduce(
+      (total, dish) => total + dish.price * dish.quantity,
+      0
+    );
+  }, [dishes]);
+
+  // Handle order submission
+  const handleSubmitOrder = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!deliveryAddress) {
+      Swal.fire({
+        title: "Lỗi",
+        text: "Vui lòng thêm địa chỉ giao hàng",
+        icon: "error",
+      });
+      return;
+    }
+
+    if (dishes.length === 0) {
+      Swal.fire({
+        title: "Lỗi",
+        text: "Giỏ hàng của bạn đang trống",
+        icon: "error",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      // Construct order data
+      const orderData = {
+        items: dishes.map((dish) => ({
+          dishId: dish.id,
+          quantity: dish.quantity,
+          price: dish.price,
+        })),
+        deliveryAddress: deliveryAddress,
+        deliveryOption: selectedDelivery,
+        paymentMethod: paymentMethod,
+        utensilsNeeded: utensilsNeeded,
+        subtotal: calculateSubtotal(),
+        deliveryFee:
+          deliveryOptions.find((option) => option.id === selectedDelivery)
+            ?.price || 0,
+        totalPrice: totalPrice,
+      };
+
+      // Here you would normally send the order to your API
+      console.log("Submitting order:", orderData);
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Show success message
+      Swal.fire({
+        title: "Thành công!",
+        text: "Đơn hàng của bạn đã được đặt thành công",
+        icon: "success",
+      });
+
+      // Here you might want to clear the cart or redirect to an order confirmation page
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      Swal.fire({
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.",
+        icon: "error",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    const subtotal = calculateSubtotal();
+    const deliveryFee =
+      deliveryOptions.find((option) => option.id === selectedDelivery)?.price ||
+      0;
+
+    setTotalPrice(subtotal + deliveryFee);
+  }, [dishes, selectedDelivery, calculateSubtotal]);
+
+  useEffect(() => {
+    // Check if there's an address in localStorage
+    const savedAddress = localStorage.getItem("deliveryAddress");
+    if (savedAddress) {
+      try {
+        setDeliveryAddress(JSON.parse(savedAddress));
+      } catch (e) {
+        console.error("Error parsing saved address", e);
+      }
+    }
+
+    const fetchDishes = () => {
+      setLoading(true);
+      try {
+        const dishIds = cart.map((item) => item.dishId);
+
+        if (dishIds.length > 0 && data?.payload?.data) {
+          const cartMap = new Map(
+            cart.map((item) => [item.dishId, item.quantity])
+          );
+
+          const dishesWithQuantity = data.payload.data
+            .filter((dish) => cartMap.has(dish.id))
+            .map((dish) => ({
+              ...dish,
+              quantity: cartMap.get(dish.id) || 0,
+            }));
+
+          setDishes(dishesWithQuantity);
+        } else {
+          setDishes([]);
+        }
+      } catch (error) {
+        console.error("Không thể lấy thông tin món ăn:", error);
+        setDishes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDishes();
+  }, [cart, data]);
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
 
@@ -137,9 +300,7 @@ const Cart = () => {
         </div>
         <div className="flex justify-between mb-2">
           <span>Phí áp dụng</span>
-          <span>
-            {getDeliveryFee().toLocaleString()}đ
-          </span>
+          <span>21.000đ</span>
         </div>
       </div>
 
