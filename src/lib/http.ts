@@ -50,6 +50,8 @@ export class EntityError extends HttpError {
 
 let clientLogoutRequest: null | Promise<any> = null
 export const isClient = typeof window !== 'undefined'
+
+
 const request = async <Response>(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   url: string,
@@ -146,7 +148,6 @@ const request = async <Response>(
   }
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient) {
-    console.log(isClient)
     const normalizeUrl = normalizePath(url)
     if (
       ['api/auth/login', 'api/guest/auth/login'].includes(normalizeUrl)

@@ -26,4 +26,6 @@ export const deliveryOptions = [
       price: 0,
     },
   ];
+
+  export const deliveryOptionIds = ["priority", "fast", "saving", "later"] as const;
   

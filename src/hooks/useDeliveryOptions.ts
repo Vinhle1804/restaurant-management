@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { deliveryOptions } from "@/constants/deliveryOptions";
+import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
 
 
 export const useDeliveryOptions = () => {
   const [selectedDelivery, setSelectedDelivery] = useState("fast");
   const [utensilsNeeded, setUtensilsNeeded] = useState(false);
+  const {data} = useGetDeliveryFeeListQuery()
+  console.log("data ne",data)
 
   // Get delivery fee based on selected option
   const getDeliveryFee = () => {
-    return deliveryOptions.find((option) => option.id === selectedDelivery)?.price || 0;
+    return data?.payload.data.find((option) => option.code === selectedDelivery)?.baseFee || 0;
   };
 
   return {

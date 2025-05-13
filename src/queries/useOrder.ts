@@ -48,3 +48,10 @@ export const useCreateOrderMutation = () =>{
     mutationFn: orderApiRequest.createOrder
   })
 }
+
+export const useGetDeliveryFeeListQuery = () =>{
+  return useQuery({
+    queryFn: orderApiRequest.getDeliveryFeeList,
+    queryKey: ["deliveryFeeList"],
+  })
+}

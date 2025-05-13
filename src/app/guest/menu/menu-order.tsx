@@ -48,7 +48,7 @@ try {
    await mutateAsync(orders)
     router.push('/guest/orders')
 } catch (error) {
-    handleErrorApi({ error,  setError: () => {} }); // xử lý lỗi bằng function riêng
+    handleErrorApi({ error,  setError: () => {} }); 
   }
 } 
 console.log("order",orders)

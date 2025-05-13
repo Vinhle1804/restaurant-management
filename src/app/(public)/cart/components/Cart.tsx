@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import DeliveryAddress from "./delivery-address";
-import { deliveryOptions } from "@/constants/deliveryOptions";
 
 // Import custom hooks
 import { useCart } from "@/hooks/useCart";
@@ -12,8 +11,10 @@ import { useDeliveryOptions } from "@/hooks/useDeliveryOptions";
 import { useOrder } from "@/hooks/useOrder";
 import { useDeliveryAddress } from "@/hooks/useDeliveryAdress";
 import { PaymentMethod } from "@/constants/orders";
+import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
 
 const Cart = () => {
+    const {data} = useGetDeliveryFeeListQuery()
   // Use custom hooks
   const { 
     dishes, 
@@ -269,32 +270,32 @@ const Cart = () => {
       <div className="p-4 bg-white mt-2">
         <h3 className="text-lg font-medium mb-4">Tuỳ chọn giao hàng</h3>
 
-        {deliveryOptions.map((option) => (
+        {data?.payload.data.map((option) => (
           <div
-            key={option.id}
+            key={option.code}
             className={`p-4 rounded-lg border mb-2 cursor-pointer ${
-              selectedDelivery === option.id
+              selectedDelivery === option.code
                 ? "border-green-500"
                 : "border-gray-200"
             }`}
-            onClick={() => setSelectedDelivery(option.id)}
+            onClick={() => setSelectedDelivery(option.code)}
           >
             <input
               type="radio"
-              id={`delivery-${option.id}`}
+              id={`delivery-${option.code}`}
               name="deliveryOption"
               value={option.id}
-              checked={selectedDelivery === option.id}
-              onChange={() => setSelectedDelivery(option.id)}
+              checked={selectedDelivery === option.code}
+              onChange={() => setSelectedDelivery(option.code)}
               className="hidden"
             />
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-medium">{option.label}</span>
-                {option.time && <span className="ml-2">• {option.time}</span>}
+                {option.estimatedTime && <span className="ml-2">• {option.estimatedTime}</span>}
               </div>
               <span>
-                {option.price ? `${option.price.toLocaleString()}đ` : ""}
+                {option.baseFee ? `${option.baseFee.toLocaleString()}đ` : ""}
               </span>
             </div>
             {option.description && (

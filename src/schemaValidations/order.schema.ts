@@ -79,6 +79,7 @@ export const GetOrderDetailRes = z.object({
     table: TableSchema
   })
 })
+
 export type GetOrderDetailResType = z.TypeOf<typeof GetOrderDetailRes>
 
 export const PayGuestOrdersBody = z.object({
