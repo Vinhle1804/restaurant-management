@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { Dish } from "@/types/dish";
 import { Address } from "@/types/adress";
 import { PaymentMethod } from "@/constants/orders";
+import { toast } from "sonner";
 
 interface UseOrderProps {
   dishes: Dish[];
@@ -14,7 +15,6 @@ interface UseOrderProps {
   utensilsNeeded: boolean;
 }
 
-
 export const useOrder = ({
   dishes,
   calculateSubtotal,
@@ -22,7 +22,7 @@ export const useOrder = ({
   selectedDelivery,
   getDeliveryFee,
   paymentMethod,
-  utensilsNeeded
+  utensilsNeeded,
 }: UseOrderProps) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -64,15 +64,11 @@ export const useOrder = ({
         items: dishes.map((dish) => ({
           dishId: dish.id,
           quantity: dish.quantity,
-          price: dish.price,
         })),
         deliveryAddress: deliveryAddress,
         deliveryOption: selectedDelivery,
         paymentMethod: paymentMethod,
         utensilsNeeded: utensilsNeeded,
-        subtotal: calculateSubtotal(),
-        deliveryFee: getDeliveryFee(),
-        totalPrice: totalPrice,
       };
 
       // Here you would normally send the order to your API
@@ -82,19 +78,15 @@ export const useOrder = ({
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Show success message
-      Swal.fire({
-        title: "Thành công!",
-        text: "Đơn hàng của bạn đã được đặt thành công",
-        icon: "success",
+     toast("success", {
+        description: "dat hang thanh cong",
       });
 
       // Here you might want to clear the cart or redirect to an order confirmation page
     } catch (error) {
       console.error("Error submitting order:", error);
-      Swal.fire({
-        title: "Lỗi",
-        text: "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.",
-        icon: "error",
+      toast("fail", {
+        description: "dat hang that bai",
       });
     } finally {
       setSubmitting(false);
@@ -104,6 +96,6 @@ export const useOrder = ({
   return {
     totalPrice,
     submitting,
-    handleSubmitOrder
+    handleSubmitOrder,
   };
 };
