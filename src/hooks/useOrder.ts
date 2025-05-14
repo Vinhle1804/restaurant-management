@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { Dish } from "@/types/dish";
 import { Address } from "@/types/adress";
 import { PaymentMethod } from "@/constants/orders";
+import { useAccountMe } from "@/queries/useAccount";
 
 interface UseOrderProps {
   dishes: Dish[];
@@ -14,7 +15,6 @@ interface UseOrderProps {
   utensilsNeeded: boolean;
 }
 
-
 export const useOrder = ({
   dishes,
   calculateSubtotal,
@@ -22,10 +22,12 @@ export const useOrder = ({
   selectedDelivery,
   getDeliveryFee,
   paymentMethod,
-  utensilsNeeded
+  utensilsNeeded,
 }: UseOrderProps) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const { data } = useAccountMe();
+  const account = data?.payload.data;
 
   // Calculate total price whenever dependencies change
   useEffect(() => {
@@ -61,6 +63,7 @@ export const useOrder = ({
     try {
       // Construct order data
       const orderData = {
+        user: account,
         items: dishes.map((dish) => ({
           dishId: dish.id,
           quantity: dish.quantity,
@@ -73,6 +76,8 @@ export const useOrder = ({
         subtotal: calculateSubtotal(),
         deliveryFee: getDeliveryFee(),
         totalPrice: totalPrice,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       // Here you would normally send the order to your API
@@ -104,6 +109,6 @@ export const useOrder = ({
   return {
     totalPrice,
     submitting,
-    handleSubmitOrder
+    handleSubmitOrder,
   };
 };

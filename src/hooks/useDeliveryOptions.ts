@@ -6,7 +6,6 @@ export const useDeliveryOptions = () => {
   const [selectedDelivery, setSelectedDelivery] = useState("fast");
   const [utensilsNeeded, setUtensilsNeeded] = useState(false);
   const {data} = useGetDeliveryFeeListQuery()
-  console.log("data ne",data)
 
   // Get delivery fee based on selected option
   const getDeliveryFee = () => {

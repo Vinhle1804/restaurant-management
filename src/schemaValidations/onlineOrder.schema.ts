@@ -13,6 +13,8 @@ const DishSnapshotSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date()
 })
+export type DishSnapshott = z.infer<typeof DishSnapshotSchema>;
+
 
 // 🧩 Item món ăn trong đơn hàng online
 export const OrderOnlineDishSchema = z.object({
@@ -23,6 +25,8 @@ export const OrderOnlineDishSchema = z.object({
   quantity: z.number(),
   price: z.number()
 })
+export type OrderOnlineDish = z.infer<typeof OrderOnlineDishSchema>;
+
 
 export const OrderOnlineSchema = z.object({
   id: z.number(),
@@ -46,3 +50,5 @@ export const OrderOnlineSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date()
 })
+
+export type OrderOnline = z.infer<typeof OrderOnlineSchema>;
