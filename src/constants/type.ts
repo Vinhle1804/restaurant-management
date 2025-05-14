@@ -3,7 +3,11 @@ export enum PaymentMethod {
   Cod = "COD",
 }
 
+ export const PaymentMethodValues = [PaymentMethod.MoMo, PaymentMethod.Cod] as const
+  export type PaymentMethodType = (typeof PaymentMethodValues )[number];
+
 export type DeliveryOption = "priority" | "fast" | "saving" | "later";
+
 
 // export const TokenType = {
 //   ForgotPasswordToken: 'ForgotPasswordToken',

@@ -30,7 +30,7 @@ export type OrderOnlineDish = z.infer<typeof OrderOnlineDishSchema>;
 
 export const OrderOnlineSchema = z.object({
   id: z.number(),
-  trackingNumber: z.string().nullable().optional(),
+  trackingNumber: z.string(),
   accountId: z.number(),
   account: z
     .object({
