@@ -165,7 +165,7 @@ export const CreateGuestRes = z.object({
 export type CreateGuestResType = z.TypeOf<typeof CreateGuestRes>
 
 
-export const CreateOrdersBody = z.object({
+export const CreateOrderOnlineBody = z.object({
   items: z.array(
     z.object({
       dishId: z.number(),
@@ -174,27 +174,25 @@ export const CreateOrdersBody = z.object({
   ),
   deliveryAddress: z.object({
     id: z.string(),
-    fullName: z.string(),
-    phone: z.string(),
     addressDetail: z.string(),
     province: z.string(),
     district: z.string(),
     ward: z.string(),
     provinceName: z.string(),
     districtName: z.string(),
-    notes: z.string(),
+    adressNotes: z.string().optional(),
   }),
   deliveryOption: z.string(), 
   paymentMethod: z.enum(PaymentMethodValues),  // Có thể đổi thành enum nếu cần
   utensilsNeeded: z.boolean(),
 });
 
-export type CreateOrdersBodyType = z.TypeOf<typeof CreateOrdersBody>
+export type CreateOrderOnlineBodyType = z.TypeOf<typeof CreateOrderOnlineBody>
 
-export const CreateOrdersRes = z.object({
+export const CreateOrderOnlineRes = z.object({
   message: z.string(),
   data: z.array(OrderOnlineSchema)
 })
 
-export type CreateOrdersResType = z.TypeOf<typeof CreateOrdersRes>
+export type CreateOrderOnlineResType = z.TypeOf<typeof CreateOrderOnlineRes>
 

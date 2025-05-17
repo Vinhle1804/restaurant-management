@@ -5,13 +5,14 @@ export type LocationItem = {
   
   export type Address = {
     id: string;
-    fullName: string;
-    phone: number;
+    recipientName: string;
+    recipientPhone: string;
     addressDetail: string;
     province: string;
     provinceName: string;
     district: string;
     districtName: string;
     ward: string;
-    notes?: string;
+    wardName:string,
+    addressNotes?: string;
   }
