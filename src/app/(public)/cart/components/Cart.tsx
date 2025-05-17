@@ -194,8 +194,8 @@ const Cart = () => {
               📍
             </div>
             <div>
-              <h3 className="font-medium">{deliveryAddress.fullName}</h3>
-              <h3 className="font-medium">{deliveryAddress.phone}</h3>
+              <h3 className="font-medium">{deliveryAddress.recipientName}</h3>
+              <h3 className="font-medium">{deliveryAddress.recipientPhone}</h3>
               <p className="text-sm text-gray-500">
                 {getFormattedAddress().length > 50
                   ? `${getFormattedAddress().substring(0, 50)}...`
@@ -213,7 +213,7 @@ const Cart = () => {
 
           {/* Address details and instructions */}
           <div className="mt-2">
-            {!deliveryAddress.notes ? (
+            {!deliveryAddress.addressNotes ? (
               <button
                 type="button"
                 className="text-blue-500 text-sm"
@@ -225,7 +225,7 @@ const Cart = () => {
               <div className="mt-2">
                 <p className="text-sm text-gray-600">
                   <span className="font-medium">Chi tiết:</span>{" "}
-                  {deliveryAddress.notes}
+                  {deliveryAddress.addressNotes}
                 </p>
                 <button
                   type="button"
@@ -243,7 +243,7 @@ const Cart = () => {
                   className="w-full p-2 border rounded"
                   rows={2}
                   placeholder="Nhập chi tiết địa chỉ và hướng dẫn cho tài xế..."
-                  value={deliveryAddress.notes || ""}
+                  value={deliveryAddress.addressNotes || ""}
                   onChange={handleNotesChange}
                 />
                 <div className="flex justify-end mt-2">

@@ -1,139 +1,182 @@
-'use client'
-
-import { Button } from '@/components/ui/button'
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import { useForm } from 'react-hook-form'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useEffect, useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { PlusCircle } from 'lucide-react'
-import { Address, LocationItem } from '@/types/adress'
-
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useForm, useWatch } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { PlusCircle } from "lucide-react";
+import { Address, LocationItem } from "@/types/adress";
 
 type DeliveryAddressProps = {
   onAddressAdded: (address: Address) => void;
-}
-
+};
 
 const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
+  const [open, setOpen] = useState(false);
+  const [provinces, setProvinces] = useState<LocationItem[]>([]);
+  const [districts, setDistricts] = useState<LocationItem[]>([]);
+  const [wards, setWards] = useState<LocationItem[]>([]);
+  const [selectedProvinceName, setSelectedProvinceName] = useState("");
+  const [selectedDistrictName, setSelectedDistrictName] = useState("");
+  const [selectedWardName, setSelectedWardName] = useState("");
 
-  const [open, setOpen] = useState(false)
-  const [provinces, setProvinces] = useState<LocationItem[]>([])
-  const [districts, setDistricts] = useState<LocationItem[]>([])
-  const [wards, setWards] = useState<LocationItem[]>([])
-  
-  // Thêm state để lưu trữ tên của các địa điểm đã chọn
-  const [selectedProvinceName, setSelectedProvinceName] = useState<string>('')
-  const [selectedDistrictName, setSelectedDistrictName] = useState<string>('')
-
-  const form = useForm({
+  const form = useForm<Address>({
     defaultValues: {
-      fullName: '',
-      phone: '',
-      addressDetail: '',
-      province: '',
-      district: '',
-      ward: ''
-    }
+      recipientName: "",
+      recipientPhone: "",
+      addressDetail: "",
+      province: "",
+      provinceName: "",
+      district: "",
+      districtName: "",
+      ward: "",
+      wardName: "",
+      addressNotes: "",
+    },
   });
 
-  const province = form.watch('province')
-  const district = form.watch('district')
+  // Lấy giá trị đang chọn
+  const province = useWatch({ control: form.control, name: "province" });
+  const district = useWatch({ control: form.control, name: "district" });
+  const ward = useWatch({ control: form.control, name: "ward" });
 
   const reset = () => {
     form.reset();
     setDistricts([]);
     setWards([]);
-    setSelectedProvinceName('');
-    setSelectedDistrictName('');
+    setSelectedProvinceName("");
+    setSelectedDistrictName("");
+    setSelectedWardName("");
   };
 
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = (values: any) => {
-    // Create a full address object with ID and names
+  const onSubmit = (values: Address) => {
     const newAddress: Address = {
-      id: Date.now().toString(),
       ...values,
       provinceName: selectedProvinceName,
-      districtName: selectedDistrictName
+      districtName: selectedDistrictName,
+      wardName: selectedWardName,
     };
-    
-    // Pass the address back to parent component
     onAddressAdded(newAddress);
-    
-    toast.success('Đã thêm địa chỉ thành công', {
-      description: `${values.fullName}, ${values.addressDetail}, ${values.ward}, ${selectedDistrictName}, ${selectedProvinceName}`
+    toast.success("Đã thêm địa chỉ thành công", {
+      description: `${values.recipientName}, ${values.addressDetail}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
     });
-    
-    reset()
+    reset();
     setOpen(false);
   };
 
+  // Lấy danh sách provinces 1 lần khi component mount
   useEffect(() => {
-    fetch('https://provinces.open-api.vn/api/p/')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setProvinces(data)
+    fetch("https://provinces.open-api.vn/api/p/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setProvinces(data);
       })
-      .catch(() => toast.error('Lỗi khi tải tỉnh/thành phố'))
-  }, [])
+      .catch(() => toast.error("Lỗi khi tải tỉnh/thành phố"));
+  }, []);
 
+  // Khi province thay đổi: lấy districts, reset district, ward, và tên liên quan
   useEffect(() => {
     if (province) {
       fetch(`https://provinces.open-api.vn/api/p/${province}?depth=2`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           if (data) {
-            setDistricts(data.districts || [])
-            setSelectedProvinceName(data.name || '')
+            setDistricts(data.districts || []);
+            setSelectedProvinceName(data.name || "");
+            form.setValue("provinceName", data.name || "");
           }
         })
-        .catch(() => toast.error('Lỗi khi tải quận/huyện'))
+        .catch(() => toast.error("Lỗi khi tải quận/huyện"));
+    } else {
+      setDistricts([]);
+      setSelectedProvinceName("");
     }
-  }, [province])
+    // Reset district và ward khi province đổi
+    form.setValue("district", "");
+    form.setValue("districtName", "");
+    form.setValue("ward", "");
+    form.setValue("wardName", "");
+    setSelectedDistrictName("");
+    setSelectedWardName("");
+    setWards([]);
+  }, [province, form]);
 
+  // Khi district thay đổi: lấy wards, reset ward và tên liên quan
   useEffect(() => {
     if (district) {
       fetch(`https://provinces.open-api.vn/api/d/${district}?depth=2`)
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           if (data) {
-            setWards(data.wards || [])
-            setSelectedDistrictName(data.name || '')
+            setWards(data.wards || []);
+            setSelectedDistrictName(data.name || "");
+            form.setValue("districtName", data.name || "");
           }
         })
-        .catch(() => toast.error('Lỗi khi tải phường/xã'))
+        .catch(() => toast.error("Lỗi khi tải phường/xã"));
+    } else {
+      setWards([]);
+      setSelectedDistrictName("");
     }
-  }, [district])
+    // Reset ward khi district đổi
+    form.setValue("ward", "");
+    form.setValue("wardName", "");
+    setSelectedWardName("");
+  }, [district, form]);
+
+  // Khi ward thay đổi: cập nhật tên ward
+  useEffect(() => {
+    if (ward && wards.length > 0) {
+      const selectedWard = wards.find(w => w.code === ward);
+      if (selectedWard) {
+        setSelectedWardName(selectedWard.name || "");
+        form.setValue("wardName", selectedWard.name || "");
+      }
+    } else {
+      setSelectedWardName("");
+    }
+  }, [ward, wards, form]);
 
   return (
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) reset()
-        setOpen(value)
+        if (!value) reset();
+        setOpen(value);
       }}
     >
-     <DialogTrigger asChild>
-  <Button
-    variant="outline"
-    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md shadow-sm hover:bg-gray-100 transition-colors"
-  >
-    <PlusCircle className="w-4 h-4 text-primary" />
-    <span>Thay đổi địa chỉ</span>
-  </Button>
-</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md shadow-sm hover:bg-gray-100 transition-colors"
+        >
+          <PlusCircle className="w-4 h-4 text-primary" />
+          <span>Thay đổi địa chỉ</span>
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
         <DialogHeader>
           <DialogTitle>Thêm địa chỉ giao hàng</DialogTitle>
@@ -144,9 +187,10 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid gap-4"
           >
+            {/* Full name */}
             <FormField
               control={form.control}
-              name="fullName"
+              name="recipientName"
               render={({ field }) => (
                 <FormItem>
                   <Label>Họ và tên</Label>
@@ -155,9 +199,10 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 </FormItem>
               )}
             />
+            {/* Phone */}
             <FormField
               control={form.control}
-              name="phone"
+              name="recipientPhone"
               render={({ field }) => (
                 <FormItem>
                   <Label>Số điện thoại</Label>
@@ -166,7 +211,6 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 </FormItem>
               )}
             />
-
             {/* Province */}
             <FormField
               control={form.control}
@@ -174,14 +218,9 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
               render={({ field }) => (
                 <FormItem>
                   <Label>Tỉnh/Thành phố</Label>
-                  <Select 
-                    value={field.value} 
-                    onValueChange={(value) => {
-                      field.onChange(value)
-                      // Reset district and ward when province changes
-                      form.setValue('district', '')
-                      form.setValue('ward', '')
-                    }}
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -202,7 +241,6 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 </FormItem>
               )}
             />
-
             {/* District */}
             <FormField
               control={form.control}
@@ -210,13 +248,9 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
               render={({ field }) => (
                 <FormItem>
                   <Label>Quận/Huyện</Label>
-                  <Select 
-                    value={field.value} 
-                    onValueChange={(value) => {
-                      field.onChange(value)
-                      // Reset ward when district changes
-                      form.setValue('ward', '')
-                    }}
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
                     disabled={!province}
                   >
                     <FormControl>
@@ -238,7 +272,6 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 </FormItem>
               )}
             />
-
             {/* Ward */}
             <FormField
               control={form.control}
@@ -246,19 +279,21 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
               render={({ field }) => (
                 <FormItem>
                   <Label>Phường/Xã</Label>
-                  <Select 
-                    value={field.value} 
-                    onValueChange={field.onChange}
+                  <Select
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
                     disabled={!district}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn phường/xã" />
+                        <SelectValue placeholder="Chọn phường/xã">
+                          {selectedWardName || "Chọn phường/xã"}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {wards.map((item) => (
-                        <SelectItem key={item.code} value={item.name}>
+                        <SelectItem key={item.code} value={item.code}>
                           {item.name}
                         </SelectItem>
                       ))}
@@ -268,14 +303,17 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 </FormItem>
               )}
             />
-
+            {/* Address detail */}
             <FormField
               control={form.control}
               name="addressDetail"
               render={({ field }) => (
                 <FormItem>
                   <Label>Ghi chú (Số nhà, tên đường,...)</Label>
-                  <Input {...field} placeholder="Số nhà, tên đường, phường/xã" />
+                  <Input
+                    {...field}
+                    placeholder="Số nhà, tên đường, phường/xã"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -289,11 +327,7 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
-
-export function onAddressAdded(newAddress: Address) {
-  console.log(newAddress)
-}
+  );
+};
 
 export default AddNewAddress;
