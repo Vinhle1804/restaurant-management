@@ -38,7 +38,7 @@ export const useDeliveryAddress = () => {
 
   // Handle user input for notes
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleAddressUpdate({ notes: e.target.value });
+    handleAddressUpdate({ addressNotes: e.target.value });
   };
 
   // Handle edit address button click

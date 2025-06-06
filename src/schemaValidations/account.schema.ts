@@ -6,9 +6,12 @@ import { PaymentMethodValues } from '@/constants/type'
 export const AccountSchema = z.object({
   id: z.number(),
   name: z.string(),
-  email: z.string(),
-  role: z.string().optional(),
-  avatar: z.string().nullable()
+  email: z.string().email(),
+  phone: z.string().optional().nullable(),
+  avatar: z.string().url().optional().nullable(),
+  role: z.string().optional(), 
+  ownerId: z.number().optional().nullable(),
+  defaultAddressId: z.number().optional().nullable(),
 })
 
 export type AccountType = z.TypeOf<typeof AccountSchema>
@@ -36,6 +39,15 @@ export const AddressSchema = z.object({
   addressNotes: z.string().nullable()
 })
 export type AddressType = z.TypeOf<typeof AddressSchema>
+
+export const AddressRes = z
+  .object({
+    data: AddressSchema,
+    message: z.string()
+  })
+  .strict()
+
+export type AddressResType = z.TypeOf<typeof AddressRes>
 
 export const AccountListRes = z.object({
   data: z.array(AccountSchema),
@@ -139,6 +151,13 @@ export const AccountIdParam = z.object({
 })
 
 export type AccountIdParamType = z.TypeOf<typeof AccountIdParam>
+
+
+export const AddressIdParam = z.object({
+  id: z.coerce.number()
+})
+
+export type AddressIdParamType = z.TypeOf<typeof AddressIdParam>
 
 export const GetListGuestsRes = z.object({
   data: z.array(
@@ -244,3 +263,34 @@ export const CreateAddressRes = z.object({
 })
 
 export type CreateAddressResType = z.infer<typeof CreateAddressRes>
+
+export const GetAllAddressesRes = z.object({
+  message: z.string(),
+  data: z.array(AddressSchema)
+})
+
+export type GetAllAddressesResType = z.infer<typeof GetAllAddressesRes>
+
+export const GetAddressByIdRes = z.object({
+  message: z.string(),
+  data: AddressSchema
+})
+
+export type GetAddressByIdResType = z.infer<typeof GetAddressByIdRes>
+
+export const UpdateAddressBody = AddressSchema.partial().omit({ accountId: true, id: true })
+
+export type UpdateAddressBodyType = z.infer<typeof UpdateAddressBody>
+
+export const UpdateAddressRes = z.object({
+  message: z.string(),
+  data: AddressSchema
+});
+
+export type UpdateAddressResType = z.infer<typeof UpdateAddressRes>
+
+export const UpdateAddressDefaultRes = z.object({
+  message: z.string(),
+  data: AccountSchema
+})
+export type UpdateAddressDefaultResType = z.infer<typeof UpdateAddressDefaultRes>
