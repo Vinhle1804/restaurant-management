@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import DeliveryAddress from "./delivery-address";
 
 // Import custom hooks
@@ -12,6 +11,7 @@ import { useOrder } from "@/hooks/useOrder";
 import { useDeliveryAddress } from "@/hooks/useDeliveryAdress";
 import { PaymentMethod } from "@/constants/orders";
 import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
+import AddressList from "./address-list";
 
 
 const Cart = () => {
@@ -207,7 +207,8 @@ const Cart = () => {
               className="ml-auto"
               onClick={handleEditAddress}
             >
-              <ChevronRight className="h-5 w-5" />
+  
+              <AddressList/>
             </button>
           </div>
 

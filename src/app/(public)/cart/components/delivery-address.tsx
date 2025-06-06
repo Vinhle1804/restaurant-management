@@ -174,10 +174,10 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
           className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md shadow-sm hover:bg-gray-100 transition-colors"
         >
           <PlusCircle className="w-4 h-4 text-primary" />
-          <span>Thay đổi địa chỉ</span>
+          <span>Thêm địa chỉ</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
+      <DialogContent className="w-screen h-screen max-w-full max-h-full flex flex-col sm:max-w-[600px] sm:max-h-[564px] overflow-auto">
         <DialogHeader>
           <DialogTitle>Thêm địa chỉ giao hàng</DialogTitle>
         </DialogHeader>
