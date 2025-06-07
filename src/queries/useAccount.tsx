@@ -1,5 +1,5 @@
 import accountApiRequest from "@/apiRequests/account"
-import { GetGuestListQueryParamsType, UpdateEmployeeAccountBodyType } from "@/schemaValidations/account.schema"
+import {  GetGuestListQueryParamsType, UpdateAddressBodyType,UpdateEmployeeAccountBodyType } from "@/schemaValidations/account.schema"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export const useAccountMe = () =>{
@@ -85,5 +85,69 @@ export const useGetGuestListQuery = (queryParams: GetGuestListQueryParamsType) =
 export const useCreateGuestMutation = () =>{
     return useMutation({
         mutationFn: accountApiRequest.createGuest
+    })
+}
+
+export const useGetAddressListQuery = () =>{
+    return useQuery({
+        queryFn: () => accountApiRequest.getListAddress(),
+        queryKey:['addresses']
+    })
+}
+export const useGetAddressById = () => {
+        return useQuery({
+        queryFn: () => accountApiRequest.getAddressById,
+        queryKey:['address']
+    })
+}
+export const useCreateAddressMutation = () =>{
+     const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: accountApiRequest.createAddress,
+         onSuccess:()=>{
+            queryClient.invalidateQueries({
+                queryKey:['address']
+            })
+        }
+        
+    })
+}
+export const useUpdateAddressMutation = () =>{
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, ...body }: UpdateAddressBodyType & { id: number }) => 
+            accountApiRequest.updateAddress(id, body),
+        onSuccess:()=>{
+            queryClient.invalidateQueries({
+                queryKey:['address'],
+                exact: true
+            })
+        }
+    })}
+
+    export const useUpdateDefaultAddressMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (id: number) => accountApiRequest.setAddressDefault(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['address'],
+        exact: true
+      })
+    }
+  })
+}
+
+
+    export const useDeleteAddressMutation = () =>{
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: accountApiRequest.deleteAddress,
+        onSuccess:()=>{
+            queryClient.invalidateQueries({
+                queryKey:['address']
+            })
+        }
     })
 }

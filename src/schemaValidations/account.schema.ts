@@ -3,19 +3,6 @@ import z from 'zod'
 import { OrderOnlineSchema } from './onlineOrder.schema'
 import { PaymentMethodValues } from '@/constants/type'
 
-export const AccountSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  email: z.string().email(),
-  phone: z.string().optional().nullable(),
-  avatar: z.string().url().optional().nullable(),
-  role: z.string().optional(), 
-  ownerId: z.number().optional().nullable(),
-  defaultAddressId: z.number().optional().nullable(),
-})
-
-export type AccountType = z.TypeOf<typeof AccountSchema>
-
 export const AddressSchema = z.object({
   id: z.number(),
   accountId: z.number(),
@@ -39,6 +26,22 @@ export const AddressSchema = z.object({
   addressNotes: z.string().nullable()
 })
 export type AddressType = z.TypeOf<typeof AddressSchema>
+
+export const AccountSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+  phone: z.string().optional().nullable(),
+  avatar: z.string().url().optional().nullable(),
+  role: z.string().optional(),
+  ownerId: z.number().optional().nullable(),
+  defaultAddressId: z.number().optional().nullable(),
+  defaultAddress: AddressSchema.nullable().optional()
+})
+
+export type AccountType = z.TypeOf<typeof AccountSchema>
+
+
 
 export const AddressRes = z
   .object({
@@ -152,7 +155,6 @@ export const AccountIdParam = z.object({
 
 export type AccountIdParamType = z.TypeOf<typeof AccountIdParam>
 
-
 export const AddressIdParam = z.object({
   id: z.coerce.number()
 })
@@ -253,7 +255,7 @@ export const CreateAddressBody = z.object({
   wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
 
   addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
-  addressNotes: z.string().nullable()
+  addressNotes: z.string().nullable().optional()
 })
 export type CreateAddressBodyType = z.infer<typeof CreateAddressBody>
 
@@ -285,7 +287,7 @@ export type UpdateAddressBodyType = z.infer<typeof UpdateAddressBody>
 export const UpdateAddressRes = z.object({
   message: z.string(),
   data: AddressSchema
-});
+})
 
 export type UpdateAddressResType = z.infer<typeof UpdateAddressRes>
 

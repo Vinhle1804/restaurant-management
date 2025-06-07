@@ -1,21 +1,19 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import DeliveryAddress from "./delivery-address";
 
 // Import custom hooks
 import { useCart } from "@/hooks/useCart";
 import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 import { useDeliveryOptions } from "@/hooks/useDeliveryOptions";
-import { useOrder } from "@/hooks/useOrder";
-import { useDeliveryAddress } from "@/hooks/useDeliveryAdress";
 import { PaymentMethod } from "@/constants/orders";
 import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
-import AddressList from "./address-list";
+import DeliveryAddress from "./delivery-address";
 
 
 const Cart = () => {
     const {data} = useGetDeliveryFeeListQuery()
+
   // Use custom hooks
   const { 
     dishes, 
@@ -25,15 +23,6 @@ const Cart = () => {
     handleDecreaseQuantity 
   } = useCart();
 
-  const {
-    deliveryAddress,
-    showDetailInput,
-    setShowDetailInput,
-    handleAddressAdded,
-    handleNotesChange,
-    handleEditAddress,
-    getFormattedAddress
-  } = useDeliveryAddress();
 
   const {
     paymentMethod,
@@ -50,25 +39,25 @@ const Cart = () => {
     getDeliveryFee
   } = useDeliveryOptions();
 
-  const {
-    totalPrice,
-    submitting,
-    handleSubmitOrder
-  } = useOrder({
-    dishes,
-    calculateSubtotal,
-    deliveryAddress,
-    selectedDelivery,
-    getDeliveryFee,
-    paymentMethod,
-    utensilsNeeded
-  });
+  // const {
+  //   totalPrice,
+  //   submitting,
+  //   handleSubmitOrder
+  // } = useOrder({
+  //   dishes,
+  //   calculateSubtotal,
+  //   deliveryAddress,
+  //   selectedDelivery,
+  //   getDeliveryFee,
+  //   paymentMethod,
+  //   utensilsNeeded
+  // });
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
 
   return (
     <form
-      onSubmit={handleSubmitOrder}
+      // onSubmit={handleSubmitOrder}
       className="flex flex-col h-full bg-gray-50"
     >
       {/* Order summary */}
@@ -182,91 +171,9 @@ const Cart = () => {
       {/* Delivery address */}
       <div className="flex items-center justify-between mb-2 p-4">
         <h2 className="text-lg font-semibold">Địa chỉ giao hàng</h2>
-        <div className="ml-auto flex items-center gap-2">
-          <DeliveryAddress onAddressAdded={handleAddressAdded} />
-        </div>
+
       </div>
-
-      {deliveryAddress ? (
-        <div className="p-4 bg-white mt-2">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-500 mr-3">
-              📍
-            </div>
-            <div>
-              <h3 className="font-medium">{deliveryAddress.recipientName}</h3>
-              <h3 className="font-medium">{deliveryAddress.recipientPhone}</h3>
-              <p className="text-sm text-gray-500">
-                {getFormattedAddress().length > 50
-                  ? `${getFormattedAddress().substring(0, 50)}...`
-                  : getFormattedAddress()}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="ml-auto"
-              onClick={handleEditAddress}
-            >
-  
-              <AddressList/>
-            </button>
-          </div>
-
-          {/* Address details and instructions */}
-          <div className="mt-2">
-            {!deliveryAddress.addressNotes ? (
-              <button
-                type="button"
-                className="text-blue-500 text-sm"
-                onClick={() => setShowDetailInput(true)}
-              >
-                Thêm chi tiết địa chỉ và hướng dẫn giao hàng
-              </button>
-            ) : (
-              <div className="mt-2">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Chi tiết:</span>{" "}
-                  {deliveryAddress.addressNotes}
-                </p>
-                <button
-                  type="button"
-                  className="text-blue-500 text-sm mt-1"
-                  onClick={() => setShowDetailInput(true)}
-                >
-                  Chỉnh sửa
-                </button>
-              </div>
-            )}
-
-            {showDetailInput && (
-              <div className="mt-2">
-                <textarea
-                  className="w-full p-2 border rounded"
-                  rows={2}
-                  placeholder="Nhập chi tiết địa chỉ và hướng dẫn cho tài xế..."
-                  value={deliveryAddress.addressNotes || ""}
-                  onChange={handleNotesChange}
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    className="px-3 py-1 bg-green-500 text-white rounded"
-                    onClick={() => setShowDetailInput(false)}
-                  >
-                    Lưu
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 bg-white mt-2">
-          <div className="text-center text-gray-500">
-            Vui lòng thêm địa chỉ giao hàng
-          </div>
-        </div>
-      )}
+<DeliveryAddress/>
 
       {/* Delivery options */}
       <div className="p-4 bg-white mt-2">
@@ -375,7 +282,7 @@ const Cart = () => {
       </div>
 
       {/* Total and order button */}
-      <div className="p-4 bg-white border-t sticky bottom-0">
+      {/* <div className="p-4 bg-white border-t sticky bottom-0">
         <div className="flex justify-between items-center mb-2">
           <span>Tổng cộng</span>
           <div className="text-right">
@@ -395,7 +302,7 @@ const Cart = () => {
         >
           {submitting ? "Đang xử lý..." : "Đặt đơn"}
         </button>
-      </div>
+      </div> */}
     </form>
   );
 };
