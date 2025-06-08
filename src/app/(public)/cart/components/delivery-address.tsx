@@ -58,7 +58,7 @@ function DeliveryAddress() {
           className="ml-auto"
           onClick={() => setShowDetailInput(!showDetailInput)}
         >
-          <AddressList />
+          <AddressList deliveryAddress={deliveryAddress} />
         </button>
       </div>
 

@@ -91,7 +91,8 @@ export const useCreateGuestMutation = () =>{
 export const useGetAddressListQuery = () =>{
     return useQuery({
         queryFn: () => accountApiRequest.getListAddress(),
-        queryKey:['addresses']
+        queryKey:['address'],
+        
     })
 }
 export const useGetAddressById = () => {
@@ -108,9 +109,11 @@ export const useCreateAddressMutation = () =>{
             queryClient.invalidateQueries({
                 queryKey:['address']
             })
+              queryClient.invalidateQueries({
+                queryKey:['account-me']
+              })
         }
-        
-    })
+})
 }
 export const useUpdateAddressMutation = () =>{
     const queryClient = useQueryClient()

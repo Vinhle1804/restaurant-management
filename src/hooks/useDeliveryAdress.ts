@@ -8,6 +8,7 @@ export const useDeliveryAddress = () => {
   const [showDetailInput, setShowDetailInput] = useState(false);
   const {data} = useAccountMe()
   const addressDefault = data?.payload.data.defaultAddress
+  const addressDefaultId = data?.payload.data.defaultAddressId
   console.log(addressDefault,"hehehe");
 
   useEffect(() => {
@@ -24,18 +25,10 @@ export const useDeliveryAddress = () => {
   }, [addressDefault]);
 
 
-
-
-
-
-
-
-
-
   return {
     deliveryAddress,
     showDetailInput,
     setShowDetailInput,
-
+    addressDefaultId
   };
 };

@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { AddressType } from "@/schemaValidations/account.schema";
 import { useGetAddressListQuery } from "@/queries/useAccount";
 import AddNewAddress from "./add-delivery-address";
+import { Address } from "@/types/adress";
 
 type FormData = {
   addresses: AddressType[];
@@ -24,10 +25,10 @@ type FormData = {
 // Props interface để parent component có thể nhận địa chỉ đã chọn
 interface AddressListProps {
   onAddressSelect?: (address: AddressType) => void;
-  onClose?: () => void;
+   deliveryAddress: Address;
 }
 
-const AddressList = ({ onAddressSelect, onClose }: AddressListProps) => {
+const AddressList = ({ onAddressSelect, deliveryAddress }: AddressListProps) => {
   const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
 
@@ -42,9 +43,21 @@ const AddressList = ({ onAddressSelect, onClose }: AddressListProps) => {
   const watchedSelectedId = form.watch("selectedAddressId");
   const watchedDefaultId = form.watch("defaultAddressId");
   const addresses = form.watch("addresses");
+
   
+
+
   // Lấy dữ liệu địa chỉ từ API
   const { data, isLoading, error } = useGetAddressListQuery();
+
+//   const reset = () => {
+//   form.reset({
+//     addresses: data?.payload?.data || [],
+//     selectedAddressId: null,
+//     defaultAddressId: null,
+//   });
+// };
+
   
   // Xử lý dữ liệu từ API
   useEffect(() => {
@@ -54,16 +67,12 @@ const AddressList = ({ onAddressSelect, onClose }: AddressListProps) => {
         : [data.payload.data];
       
       form.setValue("addresses", addressData);
-      
+      form.setValue("defaultAddressId",deliveryAddress.id)
     
     }
-  }, [data, form]);
+  }, [data, deliveryAddress.id, form]);
 
-  useEffect(() => {
-    if (watchedSelectedId !== null) {
-      form.setValue("defaultAddressId", watchedSelectedId);
-    }
-  }, [form, watchedSelectedId]);
+
 
   // Handle address selection
   const handleSelectAddress = (addressId: number) => {
@@ -142,12 +151,9 @@ const AddressList = ({ onAddressSelect, onClose }: AddressListProps) => {
         onAddressSelect(selectedAddress);
       }
     }
-    
     // Close dialog
     setOpen(false);
-    if (onClose) {
-      onClose();
-    }
+
   };
 
 
@@ -295,16 +301,7 @@ const AddressList = ({ onAddressSelect, onClose }: AddressListProps) => {
 
               <AddNewAddress onAddressAdded={handleAddNewAddress} />
 
-              {/* Add New Address Button
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full mt-6 p-4 border-2 border-dashed border-gray-300 hover:border-red-400 hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors"
-                onClick={handleAddNewAddress}
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Thêm Địa Chỉ Mới
-              </Button> */}
+    
             </div>
           </div>
         </div>
