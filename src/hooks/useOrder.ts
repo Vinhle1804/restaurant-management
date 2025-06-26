@@ -1,38 +1,38 @@
+'use client'
 import { useState, useEffect, FormEvent } from "react";
 import Swal from "sweetalert2";
 import { Dish } from "@/types/dish";
-import { Address } from "@/types/adress";
 import { PaymentMethod } from "@/constants/orders";
 import { toast } from "sonner";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 interface UseOrderProps {
   dishes: Dish[];
   calculateSubtotal: () => number;
-  deliveryAddress: Address | null;
-  selectedDelivery: string;
   getDeliveryFee: () => number;
   paymentMethod: PaymentMethod;
-  utensilsNeeded: boolean;
 }
 
 export const useOrder = ({
   dishes,
   calculateSubtotal,
-  deliveryAddress,
-  selectedDelivery,
   getDeliveryFee,
   paymentMethod,
-  utensilsNeeded,
 }: UseOrderProps) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+    // 2. Lấy dữ liệu đã lưu trong Redux store
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.delivery.defaultAddress
+  );
 
   // Calculate total price whenever dependencies change
   useEffect(() => {
     const subtotal = calculateSubtotal();
     const deliveryFee = getDeliveryFee();
     setTotalPrice(subtotal + deliveryFee);
-  }, [dishes, selectedDelivery, calculateSubtotal, getDeliveryFee]);
+  }, [dishes, calculateSubtotal, getDeliveryFee]);
 
   // Handle order submission
   const handleSubmitOrder = async (e: FormEvent) => {
@@ -65,10 +65,9 @@ export const useOrder = ({
           dishId: dish.id,
           quantity: dish.quantity,
         })),
-        deliveryAddress: deliveryAddress,
-        deliveryOption: selectedDelivery,
-        paymentMethod: paymentMethod,
-        utensilsNeeded: utensilsNeeded,
+      deliveryAddress,
+       paymentMethod,
+      totalPrice
       };
 
       // Here you would normally send the order to your API

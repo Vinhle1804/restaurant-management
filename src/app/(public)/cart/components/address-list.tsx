@@ -12,9 +12,10 @@ import {
 import { ChevronRight, ChevronLeft, Trash2, Edit, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AddressType } from "@/schemaValidations/account.schema";
-import { useGetAddressListQuery } from "@/queries/useAccount";
+import { useGetAddressListQuery, useUpdateDefaultAddressMutation } from "@/queries/useAccount";
 import AddNewAddress from "./add-delivery-address";
 import { Address } from "@/types/adress";
+import { handleErrorApi } from "@/lib/utils";
 
 type FormData = {
   addresses: AddressType[];
@@ -31,7 +32,7 @@ interface AddressListProps {
 const AddressList = ({ onAddressSelect, deliveryAddress }: AddressListProps) => {
   const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
-
+  const updateDefaultAddressMutation = useUpdateDefaultAddressMutation()
   const form = useForm<FormData>({
     defaultValues: {
       addresses: [],
@@ -139,22 +140,36 @@ const AddressList = ({ onAddressSelect, deliveryAddress }: AddressListProps) => 
     }
   };
 
-  // Handle form submission
-  const onSubmit = (data: FormData) => {
-    const selectedAddress = data.addresses.find((addr) => addr.id === data.selectedAddressId);
-    
-    if (selectedAddress) {
-      console.log("Selected Address:", selectedAddress);
-      
+ const onSubmit = async (data: FormData) => {
+  const selectedAddress = data.addresses.find(
+    (addr) => addr.id === data.selectedAddressId
+  );
+
+  if (selectedAddress) {
+    console.log("Selected Address:", selectedAddress);
+    console.log(selectedAddress.id);
+
+    try {
+      await updateDefaultAddressMutation.mutateAsync(selectedAddress.id);
+
       // Gọi callback để trả địa chỉ về parent component
       if (onAddressSelect) {
         onAddressSelect(selectedAddress);
       }
-    }
-    // Close dialog
-    setOpen(false);
 
-  };
+      // Đóng dialog sau khi mọi thứ thành công
+      setOpen(false);
+
+    } catch (error) {
+      handleErrorApi({
+        error,
+        setError: form.setError,
+      });
+    }
+  } else {
+    console.error("Không tìm thấy địa chỉ được chọn.");
+  }
+};
 
 
   return (

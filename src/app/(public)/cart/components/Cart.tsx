@@ -5,59 +5,57 @@ import Link from "next/link";
 // Import custom hooks
 import { useCart } from "@/hooks/useCart";
 import { usePaymentMethod } from "@/hooks/usePaymentMethod";
-import { useDeliveryOptions } from "@/hooks/useDeliveryOptions";
+
 import { PaymentMethod } from "@/constants/orders";
-import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
+
 import DeliveryAddress from "./delivery-address";
+import { useOrder } from "@/hooks/useOrder";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import DeliveryOptions from "./delivery-options";
 
+type CartProps = {
+  selectedDelivery: string;
+  setSelectedDelivery: React.Dispatch<React.SetStateAction<string>>;
+  getDeliveryFee: () => number;
+};
 
-const Cart = () => {
-    const {data} = useGetDeliveryFeeListQuery()
+const Cart = ({
+  selectedDelivery,
+  setSelectedDelivery,
+  getDeliveryFee,
+}: CartProps) => {
+
+  
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.delivery.defaultAddress
+  );
 
   // Use custom hooks
-  const { 
-    dishes, 
-    loading, 
-    calculateSubtotal, 
-    handleIncreaseQuantity, 
-    handleDecreaseQuantity 
+  const {
+    dishes,
+    loading,
+    calculateSubtotal,
+    handleIncreaseQuantity,
+    handleDecreaseQuantity,
   } = useCart();
 
+  const { paymentMethod, showOptions, setShowOptions, handleSelectPayment } =
+    usePaymentMethod();
 
-  const {
+  const { totalPrice, submitting, handleSubmitOrder } = useOrder({
+    dishes,
+    calculateSubtotal,
+    getDeliveryFee,
     paymentMethod,
-    showOptions,
-    setShowOptions,
-    handleSelectPayment
-  } = usePaymentMethod();
-
-  const {
-    selectedDelivery,
-    setSelectedDelivery,
-    utensilsNeeded,
-    setUtensilsNeeded,
-    getDeliveryFee
-  } = useDeliveryOptions();
-
-  // const {
-  //   totalPrice,
-  //   submitting,
-  //   handleSubmitOrder
-  // } = useOrder({
-  //   dishes,
-  //   calculateSubtotal,
-  //   deliveryAddress,
-  //   selectedDelivery,
-  //   getDeliveryFee,
-  //   paymentMethod,
-  //   utensilsNeeded
-  // });
+    // utensilsNeeded
+  });
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
 
   return (
     <form
-      // onSubmit={handleSubmitOrder}
+      onSubmit={handleSubmitOrder}
       className="flex flex-col h-full bg-gray-50"
     >
       {/* Order summary */}
@@ -128,14 +126,12 @@ const Cart = () => {
         </div>
         <div className="flex justify-between mb-2">
           <span>Phí áp dụng</span>
-          <span>
-            {getDeliveryFee().toLocaleString()}đ
-          </span>
+          <span>{getDeliveryFee().toLocaleString()}đ</span>
         </div>
       </div>
 
       {/* Environmental options */}
-      <div className="p-4 bg-white mt-2">
+      {/* <div className="p-4 bg-white mt-2">
         <div className="flex justify-between items-center">
           <div>
             <div>Dụng cụ ăn uống</div>
@@ -166,53 +162,18 @@ const Cart = () => {
             </label>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Delivery address */}
       <div className="flex items-center justify-between mb-2 p-4">
         <h2 className="text-lg font-semibold">Địa chỉ giao hàng</h2>
-
       </div>
-<DeliveryAddress/>
-
+      <DeliveryAddress />
       {/* Delivery options */}
-      <div className="p-4 bg-white mt-2">
-        <h3 className="text-lg font-medium mb-4">Tuỳ chọn giao hàng</h3>
-
-        {data?.payload.data.map((option) => (
-          <div
-            key={option.code}
-            className={`p-4 rounded-lg border mb-2 cursor-pointer ${
-              selectedDelivery === option.code
-                ? "border-green-500"
-                : "border-gray-200"
-            }`}
-            onClick={() => setSelectedDelivery(option.code)}
-          >
-            <input
-              type="radio"
-              id={`delivery-${option.code}`}
-              name="deliveryOption"
-              value={option.id}
-              checked={selectedDelivery === option.code}
-              onChange={() => setSelectedDelivery(option.code)}
-              className="hidden"
-            />
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="font-medium">{option.label}</span>
-                {option.estimatedTime && <span className="ml-2">• {option.estimatedTime}</span>}
-              </div>
-              <span>
-                {option.baseFee ? `${option.baseFee.toLocaleString()}đ` : ""}
-              </span>
-            </div>
-            {option.description && (
-              <p className="text-sm text-gray-500 mt-1">{option.description}</p>
-            )}
-          </div>
-        ))}
-      </div>
+      <DeliveryOptions
+        selectedDelivery={selectedDelivery}
+        setSelectedDelivery={setSelectedDelivery}
+      />
 
       {/* Payment info */}
       <div className="p-4 bg-white mt-2">
@@ -282,7 +243,7 @@ const Cart = () => {
       </div>
 
       {/* Total and order button */}
-      {/* <div className="p-4 bg-white border-t sticky bottom-0">
+      <div className="p-4 bg-white border-t sticky bottom-0">
         <div className="flex justify-between items-center mb-2">
           <span>Tổng cộng</span>
           <div className="text-right">
@@ -302,7 +263,7 @@ const Cart = () => {
         >
           {submitting ? "Đang xử lý..." : "Đặt đơn"}
         </button>
-      </div> */}
+      </div>
     </form>
   );
 };

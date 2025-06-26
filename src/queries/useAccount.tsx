@@ -138,6 +138,9 @@ export const useUpdateAddressMutation = () =>{
         queryKey: ['address'],
         exact: true
       })
+      queryClient.invalidateQueries({
+                queryKey:['account-me']
+              })
     }
   })
 }

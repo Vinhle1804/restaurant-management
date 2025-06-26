@@ -1,8 +1,12 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { useDeliveryAddress } from '@/hooks/useDeliveryAdress';
 import AddressList from './address-list';
 
+
 function DeliveryAddress() {
+
+
   const {
     deliveryAddress,
     showDetailInput,
