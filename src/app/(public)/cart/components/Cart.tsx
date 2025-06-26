@@ -1,67 +1,54 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import DeliveryAddress from "./delivery-address";
 
 // Import custom hooks
 import { useCart } from "@/hooks/useCart";
 import { usePaymentMethod } from "@/hooks/usePaymentMethod";
-import { useDeliveryOptions } from "@/hooks/useDeliveryOptions";
-import { useOrder } from "@/hooks/useOrder";
-import { useDeliveryAddress } from "@/hooks/useDeliveryAdress";
+
 import { PaymentMethod } from "@/constants/orders";
-import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
-import AddressList from "./address-list";
 
+import DeliveryAddress from "./delivery-address";
+import { useOrder } from "@/hooks/useOrder";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import DeliveryOptions from "./delivery-options";
 
-const Cart = () => {
-    const {data} = useGetDeliveryFeeListQuery()
+type CartProps = {
+  selectedDelivery: string;
+  setSelectedDelivery: React.Dispatch<React.SetStateAction<string>>;
+  getDeliveryFee: () => number;
+};
+
+const Cart = ({
+  selectedDelivery,
+  setSelectedDelivery,
+  getDeliveryFee,
+}: CartProps) => {
+
+  
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.delivery.defaultAddress
+  );
+
   // Use custom hooks
-  const { 
-    dishes, 
-    loading, 
-    calculateSubtotal, 
-    handleIncreaseQuantity, 
-    handleDecreaseQuantity 
+  const {
+    dishes,
+    loading,
+    calculateSubtotal,
+    handleIncreaseQuantity,
+    handleDecreaseQuantity,
   } = useCart();
 
-  const {
-    deliveryAddress,
-    showDetailInput,
-    setShowDetailInput,
-    handleAddressAdded,
-    handleNotesChange,
-    handleEditAddress,
-    getFormattedAddress
-  } = useDeliveryAddress();
+  const { paymentMethod, showOptions, setShowOptions, handleSelectPayment } =
+    usePaymentMethod();
 
-  const {
-    paymentMethod,
-    showOptions,
-    setShowOptions,
-    handleSelectPayment
-  } = usePaymentMethod();
-
-  const {
-    selectedDelivery,
-    setSelectedDelivery,
-    utensilsNeeded,
-    setUtensilsNeeded,
-    getDeliveryFee
-  } = useDeliveryOptions();
-
-  const {
-    totalPrice,
-    submitting,
-    handleSubmitOrder
-  } = useOrder({
+  const { totalPrice, submitting, handleSubmitOrder } = useOrder({
     dishes,
     calculateSubtotal,
-    deliveryAddress,
-    selectedDelivery,
     getDeliveryFee,
     paymentMethod,
-    utensilsNeeded
+    // utensilsNeeded
   });
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
@@ -139,14 +126,12 @@ const Cart = () => {
         </div>
         <div className="flex justify-between mb-2">
           <span>Phí áp dụng</span>
-          <span>
-            {getDeliveryFee().toLocaleString()}đ
-          </span>
+          <span>{getDeliveryFee().toLocaleString()}đ</span>
         </div>
       </div>
 
       {/* Environmental options */}
-      <div className="p-4 bg-white mt-2">
+      {/* <div className="p-4 bg-white mt-2">
         <div className="flex justify-between items-center">
           <div>
             <div>Dụng cụ ăn uống</div>
@@ -177,135 +162,18 @@ const Cart = () => {
             </label>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Delivery address */}
       <div className="flex items-center justify-between mb-2 p-4">
         <h2 className="text-lg font-semibold">Địa chỉ giao hàng</h2>
-        <div className="ml-auto flex items-center gap-2">
-          <DeliveryAddress onAddressAdded={handleAddressAdded} />
-        </div>
       </div>
-
-      {deliveryAddress ? (
-        <div className="p-4 bg-white mt-2">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-500 mr-3">
-              📍
-            </div>
-            <div>
-              <h3 className="font-medium">{deliveryAddress.recipientName}</h3>
-              <h3 className="font-medium">{deliveryAddress.recipientPhone}</h3>
-              <p className="text-sm text-gray-500">
-                {getFormattedAddress().length > 50
-                  ? `${getFormattedAddress().substring(0, 50)}...`
-                  : getFormattedAddress()}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="ml-auto"
-              onClick={handleEditAddress}
-            >
-  
-              <AddressList/>
-            </button>
-          </div>
-
-          {/* Address details and instructions */}
-          <div className="mt-2">
-            {!deliveryAddress.addressNotes ? (
-              <button
-                type="button"
-                className="text-blue-500 text-sm"
-                onClick={() => setShowDetailInput(true)}
-              >
-                Thêm chi tiết địa chỉ và hướng dẫn giao hàng
-              </button>
-            ) : (
-              <div className="mt-2">
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Chi tiết:</span>{" "}
-                  {deliveryAddress.addressNotes}
-                </p>
-                <button
-                  type="button"
-                  className="text-blue-500 text-sm mt-1"
-                  onClick={() => setShowDetailInput(true)}
-                >
-                  Chỉnh sửa
-                </button>
-              </div>
-            )}
-
-            {showDetailInput && (
-              <div className="mt-2">
-                <textarea
-                  className="w-full p-2 border rounded"
-                  rows={2}
-                  placeholder="Nhập chi tiết địa chỉ và hướng dẫn cho tài xế..."
-                  value={deliveryAddress.addressNotes || ""}
-                  onChange={handleNotesChange}
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    className="px-3 py-1 bg-green-500 text-white rounded"
-                    onClick={() => setShowDetailInput(false)}
-                  >
-                    Lưu
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 bg-white mt-2">
-          <div className="text-center text-gray-500">
-            Vui lòng thêm địa chỉ giao hàng
-          </div>
-        </div>
-      )}
-
+      <DeliveryAddress />
       {/* Delivery options */}
-      <div className="p-4 bg-white mt-2">
-        <h3 className="text-lg font-medium mb-4">Tuỳ chọn giao hàng</h3>
-
-        {data?.payload.data.map((option) => (
-          <div
-            key={option.code}
-            className={`p-4 rounded-lg border mb-2 cursor-pointer ${
-              selectedDelivery === option.code
-                ? "border-green-500"
-                : "border-gray-200"
-            }`}
-            onClick={() => setSelectedDelivery(option.code)}
-          >
-            <input
-              type="radio"
-              id={`delivery-${option.code}`}
-              name="deliveryOption"
-              value={option.id}
-              checked={selectedDelivery === option.code}
-              onChange={() => setSelectedDelivery(option.code)}
-              className="hidden"
-            />
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="font-medium">{option.label}</span>
-                {option.estimatedTime && <span className="ml-2">• {option.estimatedTime}</span>}
-              </div>
-              <span>
-                {option.baseFee ? `${option.baseFee.toLocaleString()}đ` : ""}
-              </span>
-            </div>
-            {option.description && (
-              <p className="text-sm text-gray-500 mt-1">{option.description}</p>
-            )}
-          </div>
-        ))}
-      </div>
+      <DeliveryOptions
+        selectedDelivery={selectedDelivery}
+        setSelectedDelivery={setSelectedDelivery}
+      />
 
       {/* Payment info */}
       <div className="p-4 bg-white mt-2">

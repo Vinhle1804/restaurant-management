@@ -1,10 +1,10 @@
+"use client";
 import { useState } from "react";
 import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
 
 
 export const useDeliveryOptions = () => {
-  const [selectedDelivery, setSelectedDelivery] = useState("fast");
-  const [utensilsNeeded, setUtensilsNeeded] = useState(false);
+  const [selectedDelivery, setSelectedDelivery] = useState("DELIVERY002");
   const {data} = useGetDeliveryFeeListQuery()
 
   // Get delivery fee based on selected option
@@ -15,8 +15,6 @@ export const useDeliveryOptions = () => {
   return {
     selectedDelivery,
     setSelectedDelivery,
-    utensilsNeeded,
-    setUtensilsNeeded,
     getDeliveryFee
   };
 };

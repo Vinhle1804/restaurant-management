@@ -1,65 +1,38 @@
-import { useState, useEffect } from "react";
-import { Address } from "@/types/adress";
-
+"use client";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setDefaultAddress, setAddressIdDefault } from "@/redux/slide/deliverySlide";
+import { useAccountMe } from "@/queries/useAccount";
 
 export const useDeliveryAddress = () => {
-  const [deliveryAddress, setDeliveryAddress] = useState<Address | null>(null);
   const [showDetailInput, setShowDetailInput] = useState(false);
+  const dispatch = useDispatch();
 
+  // 1. Lấy dữ liệu từ API
+  const { data } = useAccountMe();
+  const addressDefault = data?.payload.data.defaultAddress;
+  const addressDefaultId = data?.payload.data.defaultAddressId;
+
+  // 2. Lấy dữ liệu đã lưu trong Redux store
+  const deliveryAddress = useSelector(
+    (state: RootState) => state.delivery.defaultAddress
+  );
+
+  // 3. Khi API trả dữ liệu, lưu vào Redux
   useEffect(() => {
-    // Check if there's an address in localStorage
-    const savedAddress = localStorage.getItem("deliveryAddress");
-    if (savedAddress) {
-      try {
-        setDeliveryAddress(JSON.parse(savedAddress));
-      } catch (e) {
-        console.error("Error parsing saved address", e);
-      }
+    if (addressDefault) {
+      dispatch(setDefaultAddress(addressDefault));
     }
-  }, []);
-
-  // Handle when user adds or changes the main address
-  const handleAddressAdded = (address: Address) => {
-    setDeliveryAddress(address);
-    // Save address to localStorage to retain it when refreshing the page
-    localStorage.setItem("deliveryAddress", JSON.stringify(address));
-  };
-
-  // Handle address update including details
-  const handleAddressUpdate = (updates: Partial<Address>) => {
-    if (!deliveryAddress) return;
-
-    const updatedAddress = { ...deliveryAddress, ...updates };
-    setDeliveryAddress(updatedAddress);
-
-    // Save updated address to localStorage
-    localStorage.setItem("deliveryAddress", JSON.stringify(updatedAddress));
-  };
-
-  // Handle user input for notes
-  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleAddressUpdate({ addressNotes: e.target.value });
-  };
-
-  // Handle edit address button click
-  const handleEditAddress = () => {
-    setShowDetailInput(true);
-  };
-
-  // Format address for display
-  const getFormattedAddress = () => {
-    if (!deliveryAddress) return "";
-    return `${deliveryAddress.addressDetail}, ${deliveryAddress.ward}, ${deliveryAddress.districtName}, ${deliveryAddress.provinceName}`;
-  };
+    if (addressDefaultId) {
+      dispatch(setAddressIdDefault(addressDefaultId));
+    }
+  }, [addressDefault, addressDefaultId, dispatch]);
 
   return {
     deliveryAddress,
     showDetailInput,
     setShowDetailInput,
-    handleAddressAdded,
-    handleAddressUpdate,
-    handleNotesChange,
-    handleEditAddress,
-    getFormattedAddress
+    addressDefaultId,
   };
 };

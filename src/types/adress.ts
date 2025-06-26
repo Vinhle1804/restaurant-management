@@ -4,7 +4,7 @@ export type LocationItem = {
   }
   
   export type Address = {
-    id: string;
+    id: number;
     recipientName: string;
     recipientPhone: string;
     addressDetail: string;
@@ -14,5 +14,5 @@ export type LocationItem = {
     districtName: string;
     ward: string;
     wardName:string,
-    addressNotes?: string;
+    addressNotes?: string | null;
   }

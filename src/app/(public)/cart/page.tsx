@@ -1,9 +1,9 @@
-import Cart from "./components/Cart";
+import CartWrapper from "./cart-wraper";
 
 export default function CartPage() {
   return (
     <div>
-      <Cart/>
+    <CartWrapper />
     </div>
   )
 }
