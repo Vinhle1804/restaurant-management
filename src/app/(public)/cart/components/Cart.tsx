@@ -6,17 +6,18 @@ import Link from "next/link";
 import { useCart } from "@/hooks/useCart";
 import { usePaymentMethod } from "@/hooks/usePaymentMethod";
 
-import { PaymentMethod } from "@/constants/orders";
+import {  PaymentMethod } from "@/constants/orders";
 
 import DeliveryAddress from "./delivery-address";
 import { useOrder } from "@/hooks/useOrder";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import DeliveryOptions from "./delivery-options";
+import { DeliveryFeeOption } from "@/hooks/useDeliveryOptions";
 
 type CartProps = {
-  selectedDelivery: string;
-  setSelectedDelivery: React.Dispatch<React.SetStateAction<string>>;
+  selectedDelivery: DeliveryFeeOption| null;
+  setSelectedDelivery: React.Dispatch<React.SetStateAction<DeliveryFeeOption | null>>;
   getDeliveryFee: () => number;
 };
 
@@ -47,6 +48,7 @@ const Cart = ({
     dishes,
     calculateSubtotal,
     getDeliveryFee,
+    selectedDelivery,
     paymentMethod,
     // utensilsNeeded
   });

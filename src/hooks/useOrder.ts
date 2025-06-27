@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useState, useEffect, FormEvent } from "react";
 import Swal from "sweetalert2";
 import { Dish } from "@/types/dish";
@@ -6,11 +6,13 @@ import { PaymentMethod } from "@/constants/orders";
 import { toast } from "sonner";
 import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
+import { DeliveryFeeOption } from "./useDeliveryOptions";
 
 interface UseOrderProps {
   dishes: Dish[];
   calculateSubtotal: () => number;
   getDeliveryFee: () => number;
+  selectedDelivery: DeliveryFeeOption | null;
   paymentMethod: PaymentMethod;
 }
 
@@ -18,21 +20,28 @@ export const useOrder = ({
   dishes,
   calculateSubtotal,
   getDeliveryFee,
+  selectedDelivery,
   paymentMethod,
 }: UseOrderProps) => {
+  const [deliveryOption, setDeliveryOption] =
+    useState<DeliveryFeeOption | null>(null);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [deliveryFee, setDeliveryFee] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-    // 2. Lấy dữ liệu đã lưu trong Redux store
+  // 2. Lấy dữ liệu đã lưu trong Redux store
   const deliveryAddress = useSelector(
     (state: RootState) => state.delivery.defaultAddress
   );
 
   // Calculate total price whenever dependencies change
   useEffect(() => {
+    const sellect = selectedDelivery;
     const subtotal = calculateSubtotal();
     const deliveryFee = getDeliveryFee();
+    setDeliveryOption(sellect);
+    setDeliveryFee(deliveryFee);
     setTotalPrice(subtotal + deliveryFee);
-  }, [dishes, calculateSubtotal, getDeliveryFee]);
+  }, [dishes, calculateSubtotal, getDeliveryFee, selectedDelivery]);
 
   // Handle order submission
   const handleSubmitOrder = async (e: FormEvent) => {
@@ -65,9 +74,11 @@ export const useOrder = ({
           dishId: dish.id,
           quantity: dish.quantity,
         })),
-      deliveryAddress,
-       paymentMethod,
-      totalPrice
+        deliveryAddress,
+        paymentMethod,
+        deliveryFee,
+        totalPrice,
+        deliveryOption,
       };
 
       // Here you would normally send the order to your API
@@ -77,7 +88,7 @@ export const useOrder = ({
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Show success message
-     toast("success", {
+      toast("success", {
         description: "dat hang thanh cong",
       });
 

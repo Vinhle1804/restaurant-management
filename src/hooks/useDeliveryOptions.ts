@@ -1,17 +1,26 @@
 "use client";
+import { calculateDeliveryFee } from "@/utils/delivery";
 import { useState } from "react";
-import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
 
+export type DeliveryFeeOption = {
+  code: string;
+  baseFee: number;
+  extraFeePerKm: number;
+  maxDistance: number;
+}
 
 export const useDeliveryOptions = () => {
-  const [selectedDelivery, setSelectedDelivery] = useState("DELIVERY002");
-  const {data} = useGetDeliveryFeeListQuery()
+  const [selectedDelivery, setSelectedDelivery] = useState<DeliveryFeeOption | null >(null);
+
+  const distance = 5; // 5km ví dụ
 
   // Get delivery fee based on selected option
   const getDeliveryFee = () => {
-    return data?.payload.data.find((option) => option.code === selectedDelivery)?.baseFee || 0;
+    if (!selectedDelivery) return 0;
+    return calculateDeliveryFee(distance, selectedDelivery);
   };
-
+  
+  
   return {
     selectedDelivery,
     setSelectedDelivery,
