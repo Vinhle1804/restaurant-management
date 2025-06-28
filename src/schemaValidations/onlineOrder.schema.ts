@@ -1,6 +1,9 @@
 import { DishStatusValues } from '@/constants/dishs'
 import { OrderStatusValues } from '@/constants/orders'
 import z from 'zod'
+import { DeliveryFeesSchema } from './deliveryFees.schema'
+import { AddressSchema } from './account.schema'
+import { PaymentMethodValues } from '@/constants/type'
 
 const DishSnapshotSchema = z.object({
   id: z.number(),
@@ -13,10 +16,8 @@ const DishSnapshotSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date()
 })
-export type DishSnapshott = z.infer<typeof DishSnapshotSchema>;
 
-
-// 🧩 Item món ăn trong đơn hàng online
+// Item món ăn trong đơn hàng online
 export const OrderOnlineDishSchema = z.object({
   id: z.number(),
   orderOnlineId: z.number(),
@@ -25,12 +26,10 @@ export const OrderOnlineDishSchema = z.object({
   quantity: z.number(),
   price: z.number()
 })
-export type OrderOnlineDish = z.infer<typeof OrderOnlineDishSchema>;
-
 
 export const OrderOnlineSchema = z.object({
   id: z.number(),
-  trackingNumber: z.string(),
+  trackingNumber: z.string().nullable().optional(),
   accountId: z.number(),
   account: z
     .object({
@@ -41,7 +40,8 @@ export const OrderOnlineSchema = z.object({
       updatedAt: z.date()
     })
     .nullable(),
-  address: z.string(),
+  deliveryAddress: AddressSchema,
+   deliveryOption: DeliveryFeesSchema, 
   status: z.enum(OrderStatusValues),
   paymentMethod: z.string(),
   note: z.string().nullable(),
@@ -51,4 +51,26 @@ export const OrderOnlineSchema = z.object({
   updatedAt: z.date()
 })
 
-export type OrderOnline = z.infer<typeof OrderOnlineSchema>;
+
+export const CreateOrderOnlineBody = z.object({
+  items: z.array(
+    z.object({
+      dishId: z.number(),
+      quantity: z.number()
+    })
+  ),
+  deliveryAddressId: z.number(),
+deliveryOptionId: z.number(),
+  paymentMethod: z.enum(PaymentMethodValues),
+  totalPrice: z.number()
+})
+
+export type CreateOrderOnlineBodyType = z.TypeOf<typeof CreateOrderOnlineBody>
+
+export const CreateOrderOnlineRes = z.object({
+  message: z.string(),
+  data: OrderOnlineSchema
+})
+
+export type CreateOrderOnlineResType = z.TypeOf<typeof CreateOrderOnlineRes>
+

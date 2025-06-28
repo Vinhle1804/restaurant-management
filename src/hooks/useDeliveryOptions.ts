@@ -3,6 +3,7 @@ import { calculateDeliveryFee } from "@/utils/delivery";
 import { useState } from "react";
 
 export type DeliveryFeeOption = {
+  id: number,
   code: string;
   baseFee: number;
   extraFeePerKm: number;

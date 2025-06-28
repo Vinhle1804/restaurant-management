@@ -13,12 +13,18 @@ function AlertDialog({
 }
 
 function AlertDialogTrigger({
+  asChild = false, // <-- thêm mặc định
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger> & { asChild?: boolean }) {
   return (
-    <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
+    <AlertDialogPrimitive.Trigger
+      data-slot="alert-dialog-trigger"
+      asChild={asChild} // <-- forward asChild cho Radix
+      {...props}
+    />
   )
 }
+
 
 function AlertDialogPortal({
   ...props

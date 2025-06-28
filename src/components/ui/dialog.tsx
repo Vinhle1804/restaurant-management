@@ -13,10 +13,18 @@ function Dialog({
 }
 
 function DialogTrigger({
+  asChild = false, // default = false
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+  return (
+    <DialogPrimitive.Trigger
+      data-slot="dialog-trigger"
+      asChild={asChild} // 💡 forward asChild!
+      {...props}
+    />
+  )
 }
+
 
 function DialogPortal({
   ...props

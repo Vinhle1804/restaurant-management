@@ -2,6 +2,7 @@
 
 import { DeliveryFeeOption } from "@/hooks/useDeliveryOptions";
 import { useGetDeliveryFeeListQuery } from "@/queries/useOrder";
+import { useEffect } from "react";
 
 type Props = {
   selectedDelivery: DeliveryFeeOption | null;
@@ -10,6 +11,15 @@ type Props = {
 
 function DeliveryOptions({ selectedDelivery, setSelectedDelivery }: Props) {
   const { data, isLoading, error } = useGetDeliveryFeeListQuery();
+
+   useEffect(() => {
+    if (data && data.payload.data.length && !selectedDelivery) {
+      const firstActive = data.payload.data.find(opt => opt.isActive);
+      if (firstActive) {
+        setSelectedDelivery(firstActive);
+      }
+    }
+  }, [data, selectedDelivery, setSelectedDelivery]);
 
   if (isLoading) {
     return <div className="p-4">Đang tải tuỳ chọn giao hàng...</div>;

@@ -23,22 +23,23 @@ export const useOrder = ({
   selectedDelivery,
   paymentMethod,
 }: UseOrderProps) => {
-  const [deliveryOption, setDeliveryOption] =
-    useState<DeliveryFeeOption | null>(null);
+  const [deliveryOptionId, setDeliveryOptionId] =
+    useState<number | undefined>(undefined);
   const [totalPrice, setTotalPrice] = useState(0);
   const [deliveryFee, setDeliveryFee] = useState(0);
+  console.log(deliveryFee);
   const [submitting, setSubmitting] = useState(false);
   // 2. Lấy dữ liệu đã lưu trong Redux store
-  const deliveryAddress = useSelector(
-    (state: RootState) => state.delivery.defaultAddress
+  const deliveryAddressId = useSelector(
+    (state: RootState) => state.delivery.defaultAddress?.id
   );
 
   // Calculate total price whenever dependencies change
   useEffect(() => {
-    const sellect = selectedDelivery;
+    const sellect = selectedDelivery?.id;
     const subtotal = calculateSubtotal();
     const deliveryFee = getDeliveryFee();
-    setDeliveryOption(sellect);
+    setDeliveryOptionId(sellect);
     setDeliveryFee(deliveryFee);
     setTotalPrice(subtotal + deliveryFee);
   }, [dishes, calculateSubtotal, getDeliveryFee, selectedDelivery]);
@@ -47,7 +48,7 @@ export const useOrder = ({
   const handleSubmitOrder = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!deliveryAddress) {
+    if (!deliveryAddressId) {
       Swal.fire({
         title: "Lỗi",
         text: "Vui lòng thêm địa chỉ giao hàng",
@@ -64,6 +65,14 @@ export const useOrder = ({
       });
       return;
     }
+    if(!deliveryOptionId){
+          Swal.fire({
+        title: "Lỗi",
+        text: "Vui long chon goi giao hang",
+        icon: "error",
+      });
+      return;
+    }
 
     setSubmitting(true);
 
@@ -74,11 +83,10 @@ export const useOrder = ({
           dishId: dish.id,
           quantity: dish.quantity,
         })),
-        deliveryAddress,
+        deliveryAddressId,
         paymentMethod,
-        deliveryFee,
         totalPrice,
-        deliveryOption,
+        deliveryOptionId,
       };
 
       // Here you would normally send the order to your API

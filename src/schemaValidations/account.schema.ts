@@ -1,7 +1,5 @@
 import { RoleValues } from '@/constants/roles'
 import z from 'zod'
-import { OrderOnlineSchema } from './onlineOrder.schema'
-import { PaymentMethodValues } from '@/constants/type'
 
 export const AddressSchema = z.object({
   id: z.number(),
@@ -40,8 +38,6 @@ export const AccountSchema = z.object({
 })
 
 export type AccountType = z.TypeOf<typeof AccountSchema>
-
-
 
 export const AddressRes = z
   .object({
@@ -206,37 +202,6 @@ export const CreateGuestRes = z.object({
 
 export type CreateGuestResType = z.TypeOf<typeof CreateGuestRes>
 
-export const CreateOrderOnlineBody = z.object({
-  items: z.array(
-    z.object({
-      dishId: z.number(),
-      quantity: z.number()
-    })
-  ),
-  deliveryAddress: z.object({
-    id: z.number(),
-    addressDetail: z.string(),
-    province: z.string(),
-    district: z.string(),
-    ward: z.string(),
-    provinceName: z.string(),
-    districtName: z.string(),
-    adressNotes: z.string().nullable()
-  }),
-  deliveryOption: z.string(),
-  paymentMethod: z.enum(PaymentMethodValues), // Có thể đổi thành enum nếu cần
-  utensilsNeeded: z.boolean()
-})
-
-export type CreateOrderOnlineBodyType = z.TypeOf<typeof CreateOrderOnlineBody>
-
-export const CreateOrderOnlineRes = z.object({
-  message: z.string(),
-  data: z.array(OrderOnlineSchema)
-})
-
-export type CreateOrderOnlineResType = z.TypeOf<typeof CreateOrderOnlineRes>
-
 export const CreateAddressBody = z.object({
   recipientName: z.string().min(1, 'Tên người nhận không được để trống'),
   recipientPhone: z
@@ -255,7 +220,7 @@ export const CreateAddressBody = z.object({
   wardName: z.string().min(1, 'Tên phường/xã không được để trống'),
 
   addressDetail: z.string().min(1, 'Địa chỉ chi tiết không được để trống'),
-  addressNotes: z.string().nullable().optional()
+  addressNotes: z.string().nullable()
 })
 export type CreateAddressBodyType = z.infer<typeof CreateAddressBody>
 
