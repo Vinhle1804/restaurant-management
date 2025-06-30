@@ -34,7 +34,7 @@ import { OrderStatusValues } from "@/constants/orders";
 import OrderStatics from "@/app/manage/orders/order-statics";
 import orderTableColumns from "@/app/manage/orders/order-table-columns";
 import { useOrderService } from "@/app/manage/orders/order.service";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X, Filter } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,7 @@ import { useGetOrderListQuery, useUpdateOrderMutation } from "@/queries/useOrder
 import { useTableListQuery } from "@/queries/useTable";
 import { toast } from "sonner";
 import { useAppContext } from "@/components/app-provider";
+import { Badge } from "@/components/ui/badge";
 
 export const OrderTableContext = createContext({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -85,10 +86,12 @@ export type ServingGuestByTableNumber = Record<number, OrderObjectByGuestID>;
 const PAGE_SIZE = 10;
 const initFromDate = startOfDay(new Date());
 const initToDate = endOfDay(new Date());
+
 export default function OrderTable() {
   const searchParam = useSearchParams();
   const {socket} = useAppContext()
   const [openStatusFilter, setOpenStatusFilter] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [fromDate, setFromDate] = useState(initFromDate);
   const [toDate, setToDate] = useState(initToDate);
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
@@ -160,10 +163,43 @@ const updateOrderMutation = useUpdateOrderMutation()
     });
   }, [table, pageIndex]);
 
+  // Cập nhật filter khi selectedStatuses thay đổi
+  useEffect(() => {
+    table.getColumn("status")?.setFilterValue(selectedStatuses.length > 0 ? selectedStatuses : undefined);
+  }, [selectedStatuses, table]);
+
   const resetDateFilter = () => {
     setFromDate(initFromDate);
     setToDate(initToDate);
   };
+
+  const handleStatusToggle = (status: string) => {
+    setSelectedStatuses(prev => 
+      prev.includes(status) 
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
+
+  const clearStatusFilter = () => {
+    setSelectedStatuses([]);
+  };
+
+  const removeStatus = (statusToRemove: string) => {
+    setSelectedStatuses(prev => prev.filter(s => s !== statusToRemove));
+  };
+
+const getStatusButtonText = () => {
+  if (selectedStatuses.length === 0) return "Tất cả trạng thái";
+  if (selectedStatuses.length === 1) {
+    return getVietnameseOrderStatus(
+      selectedStatuses[0] as (typeof OrderStatusValues)[number]
+    );
+  }
+  return `${selectedStatuses.length} trạng thái`;
+};
+
+
   useEffect(() => {
     if (socket?.connected) {
       onConnect();
@@ -294,61 +330,118 @@ const updateOrderMutation = useUpdateOrderMutation()
             }
             className="max-w-[80px]"
           />
+          
+          {/* Improved Status Filter Popover */}
           <Popover open={openStatusFilter} onOpenChange={setOpenStatusFilter}>
             <PopoverTrigger asChild>
               <Button
-                variant="outline"
+                variant={selectedStatuses.length > 0 ? "default" : "outline"}
                 role="combobox"
                 aria-expanded={openStatusFilter}
-                className="w-[150px] text-sm justify-between"
+                className={cn(
+                  "w-fit min-w-[140px] justify-between gap-2 text-sm font-medium",
+                  selectedStatuses.length > 0 && "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
               >
-                {table.getColumn("status")?.getFilterValue()
-                  ? getVietnameseOrderStatus(
-                      table
-                        .getColumn("status")
-                        ?.getFilterValue() as (typeof OrderStatusValues)[number]
-                    )
-                  : "Trạng thái"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  <span className="truncate">{getStatusButtonText()}</span>
+                  {selectedStatuses.length > 0 && (
+                    <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                      {selectedStatuses.length}
+                    </Badge>
+                  )}
+                </div>
+                <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-[280px] p-0" align="start">
               <Command>
-                <CommandGroup>
+                <div className="flex items-center justify-between p-3 border-b">
+                  <h4 className="font-medium text-sm">Lọc theo trạng thái</h4>
+                  {selectedStatuses.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearStatusFilter}
+                      className="h-auto p-1 text-xs hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      Xóa tất cả
+                    </Button>
+                  )}
+                </div>
+                <CommandGroup className="max-h-64 overflow-auto">
                   <CommandList>
-                    {OrderStatusValues.map((status) => (
-                      <CommandItem
-                        key={status}
-                        value={status}
-                        onSelect={(currentValue) => {
-                          table
-                            .getColumn("status")
-                            ?.setFilterValue(
-                              currentValue ===
-                                table.getColumn("status")?.getFilterValue()
-                                ? ""
-                                : currentValue
-                            );
-                          setOpenStatusFilter(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            table.getColumn("status")?.getFilterValue() ===
-                              status
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {getVietnameseOrderStatus(status)}
-                      </CommandItem>
-                    ))}
+                    {OrderStatusValues.map((status) => {
+                      const isSelected = selectedStatuses.includes(status);
+                      return (
+                        <CommandItem
+                          key={status}
+                          onSelect={() => handleStatusToggle(status)}
+                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-accent"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "flex h-4 w-4 items-center justify-center rounded border-2",
+                              isSelected 
+                                ? "bg-primary border-primary text-primary-foreground" 
+                                : "border-input"
+                            )}>
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </div>
+                            <span className="text-sm">
+                              {getVietnameseOrderStatus(status)}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
                   </CommandList>
                 </CommandGroup>
+                {selectedStatuses.length > 0 && (
+                  <div className="p-3 border-t bg-muted/50">
+                    <div className="text-xs text-muted-foreground mb-2">
+                      Đã chọn {selectedStatuses.length} trạng thái
+                    </div>
+                    <Button
+                      onClick={() => setOpenStatusFilter(false)}
+                      size="sm"
+                      className="w-full"
+                    >
+                      Áp dụng
+                    </Button>
+                  </div>
+                )}
               </Command>
             </PopoverContent>
           </Popover>
+          
+          {/* Selected Status Badges */}
+          {selectedStatuses.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {selectedStatuses.map((status) => (
+                <Badge
+                  key={status}
+                  variant="secondary"
+                  className="text-xs px-2 py-1 pr-1 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors"
+                >
+                  <span className="mr-1">
+                    {getVietnameseOrderStatus(status as (typeof OrderStatusValues)[number])}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeStatus(status);
+                    }}
+                    className="ml-1 hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
         <OrderStatics
           statics={statics}
@@ -402,7 +495,7 @@ const updateOrderMutation = useUpdateOrderMutation()
                     >
                       No results.
                     </TableCell>
-                  </TableRow>
+                    </TableRow>
                 )}
               </TableBody>
             </Table>

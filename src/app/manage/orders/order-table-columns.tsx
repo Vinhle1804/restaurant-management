@@ -145,6 +145,15 @@ const orderTableColumns: ColumnDef<OrderItem>[] = [
           </SelectContent>
         </Select>
       )
+    },
+    // Cập nhật filterFn để hỗ trợ multi-select với mảng string
+    filterFn: (row, columnId, filterValue: string[] | undefined) => {
+      // Nếu không có filter hoặc mảng rỗng, hiển thị tất cả
+      if (!filterValue || filterValue.length === 0) return true;
+      
+      // Kiểm tra xem status của hàng hiện tại có trong mảng filter không
+      const rowStatus = row.getValue(columnId) as string;
+      return filterValue.includes(rowStatus);
     }
   },
   {

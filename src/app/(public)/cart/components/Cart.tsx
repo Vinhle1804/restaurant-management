@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -71,7 +70,7 @@ const Cart = ({
 
         {dishes.length > 0 ? (
           dishes.map((dish) => (
-            <div key={dish.id} className="flex items-center py-2">
+            <div key={dish.id} className="flex container items-center py-2">
               <div className="h-20 w-20 bg-gray-200 mr-4 rounded">
                 {dish.image && (
                   <Image
