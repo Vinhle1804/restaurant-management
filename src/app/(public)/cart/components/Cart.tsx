@@ -166,8 +166,10 @@ const Cart = ({
       </div> */}
 
       {/* Delivery address */}
-      <div className="flex items-center justify-between mb-2 p-4">
+      <div className="flex items-center bg-amber-300 justify-between mb-2 p-4">
         <h2 className="text-lg font-semibold">Địa chỉ giao hàng</h2>
+        <h1 className="text-lg font-semibold"> Them dia chi </h1>
+      
       </div>
       <DeliveryAddress />
       {/* Delivery options */}

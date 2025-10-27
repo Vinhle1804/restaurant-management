@@ -14,5 +14,5 @@ export type LocationItem = {
     districtName: string;
     ward: string;
     wardName:string,
-    addressNotes?: string | null;
+    addressNotes?: string | null
   }

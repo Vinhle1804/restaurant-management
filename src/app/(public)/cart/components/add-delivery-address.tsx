@@ -47,7 +47,7 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
   const [selectedDistrictName, setSelectedDistrictName] = useState("");
   const [selectedWardName, setSelectedWardName] = useState("");
 
-  const form = useForm<Address>({
+  const form = useForm<CreateAddressBodyType>({
     defaultValues: {
       recipientName: "",
       recipientPhone: "",
@@ -139,7 +139,7 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
   // Khi ward thay đổi: cập nhật tên ward
   useEffect(() => {
     if (ward && wards.length > 0) {
-      const selectedWard = wards.find(w => w.code === ward);
+      const selectedWard = wards.find((w) => w.code === ward);
       if (selectedWard) {
         setSelectedWardName(selectedWard.name || "");
         form.setValue("wardName", selectedWard.name || "");
@@ -164,28 +164,28 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
       };
 
       const result = await createAddressMutation.mutateAsync(body);
-      
+
       // Thành công
       toast.success("Đã thêm địa chỉ thành công", {
         description: `${body.recipientName}, ${body.addressDetail}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`,
       });
-      reset()
-      setOpen(false)
-      
+      reset();
+      setOpen(false);
+
       // Gọi callback để thông báo địa chỉ đã được thêm
       onAddressAdded(result.payload.data);
-      
+
       // Reset form và đóng dialog
       reset();
       setOpen(false);
     } catch (error) {
       handleErrorApi({
         error,
-        setError: form.setError
+        setError: form.setError,
       });
     }
   };
-
+console.log(111)
   return (
     <Dialog
       open={open}
@@ -203,13 +203,13 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
           <span>Thêm địa chỉ</span>
         </Button> */}
         <Button
-                type="button"
-                variant="ghost"
-                className="w-full mt-6 p-4 border-2 border-dashed border-gray-300 hover:border-red-400 hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Thêm Địa Chỉ Mới
-              </Button>
+          type="button"
+          variant="ghost"
+          className="w-full mt-6 p-4 border-2 border-dashed border-gray-300 hover:border-red-400 hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Thêm Địa Chỉ Mới
+        </Button>
       </DialogTrigger>
       <DialogContent className="w-screen h-screen max-w-full max-h-full flex flex-col sm:max-w-[600px] sm:max-h-[564px] overflow-auto">
         <DialogHeader>
@@ -243,7 +243,11 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                 <FormItem>
                   <Label>Số điện thoại</Label>
                   <FormControl>
-                    <Input {...field} type="tel" placeholder="Nhập số điện thoại" />
+                    <Input
+                      {...field}
+                      type="tel"
+                      placeholder="Nhập số điện thoại"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -368,7 +372,7 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
                   <FormControl>
                     <Input
                       {...field}
-                        value={field.value ?? ""}
+                      value={field.value ?? ""}
                       placeholder="Ghi chú thêm về địa chỉ..."
                     />
                   </FormControl>
@@ -379,8 +383,8 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
           </form>
         </Form>
         <DialogFooter>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             form="add-address-form"
             disabled={createAddressMutation.isPending}
           >
@@ -389,9 +393,6 @@ const AddNewAddress: React.FC<DeliveryAddressProps> = ({ onAddressAdded }) => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-
-    
   );
 };
 
